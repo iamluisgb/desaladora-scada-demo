@@ -1,0 +1,48 @@
+# .gitignore
+
+# Rapid SCADA compiled databases
+**/BaseDAT/*.dat
+
+# Runtime archives (generated data)
+**/Archive/Min/
+**/Archive/Hour/
+**/Archive/Day/
+**/Archive/Events/
+**/Archive/Cur/
+
+# Logs
+**/ScadaServerWkr/Log/
+**/ScadaCommWkr/Log/
+**/ScadaWeb/log/
+**/*.log
+**/*.log.bak
+
+# Runtime storage and cache
+**/ScadaWeb/storage/
+**/ScadaWeb/temp/
+**/ScadaServerApp/Storage/
+**/ScadaCommApp/Storage/
+**/ScadaServerApp/Temp/
+**/ScadaCommApp/Temp/
+
+# .NET build artifacts
+**/bin/
+**/obj/
+*.dll
+*.exe
+*.pdb
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
