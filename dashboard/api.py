@@ -54,6 +54,32 @@ history: list[dict] = []
 MAX_HISTORY = 300
 
 
+def read_modbus():
+    """Read all tags from the Modbus simulator."""
+    client = ModbusTcpClient(MODBUS_HOST, port=MODBUS_PORT)
+    client.connect()
+
+    # Analog tags (holding registers, float32 big-endian)
+    result = client.read_holding_registers(address=1, count=34)
+    analogs = {}
+    if not result.isError():
+        for tag, desc, unit, addr in TAG_DEFS:
+            idx = addr - 1
+            raw = struct.pack('>HH', result.registers[idx], result.registers[idx + 1])
+            val = round(struct.unpack('>f', raw)[0], 2)
+            analogs[tag] = {"value": val, "desc": desc, "unit": unit}
+
+    # Digital tags (coils)
+    coils_result = client.read_coils(address=1, count=4)
+    digitals = {}
+    if not coils_result.isError():
+        for i, (tag, desc) in enumerate(COIL_DEFS):
+            digitals[tag] = {"value": bool(coils_result.bits[i]), "desc": desc}
+
+    client.close()
+    return analogs, digitals
+
+
 class WriteCommand(BaseModel):
     tag: str
     value: bool | float | None = None
