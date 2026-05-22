@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desaladora RO — Manual Interactivo</title>
+<style>
+:root {
+  --bg: #0a0e17; --panel: #111827; --border: #1e293b; --text: #e2e8f0;
+  --muted: #64748b; --accent: #3b82f6; --green: #22c55e; --red: #ef4444;
+  --orange: #f59e0b; --cyan: #06b6d4; --purple: #8b5cf6; --nav-w: 260px;
+  --side-w: 320px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--text); display: flex;
+  height: 100vh; overflow: hidden;
+}
+
+/* ── LEFT RAIL ── */
+#nav { width: var(--nav-w); min-width: var(--nav-w); background: var(--panel);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column;
+  transition: margin-left 0.3s; overflow-y: auto; }
+#nav.collapsed { margin-left: calc(var(--nav-w) * -1); }
+#nav-toggle {
+  position: fixed; left: calc(var(--nav-w) + 8px); top: 12px; z-index: 50;
+  background: var(--panel); border: 1px solid var(--border); color: var(--text);
+  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: left 0.3s; font-size: 1rem;
+}
+#nav.collapsed ~ #nav-toggle { left: 12px; }
+.nav-header { padding: 16px; border-bottom: 1px solid var(--border); }
+.nav-header h2 { font-size: 0.85rem; font-weight: 600; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 1px; }
+.nav-header p { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+.nav-section { padding: 8px 0; }
+.nav-section-title { padding: 6px 16px; font-size: 0.7rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.nav-item {
+  padding: 8px 16px 8px 24px; cursor: pointer; display: flex;
+  align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted);
+  border-left: 3px solid transparent; transition: all 0.2s;
+}
+.nav-item:hover { background: rgba(59,130,246,0.05); color: var(--text); }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent);
+  background: rgba(59,130,246,0.08); }
+.nav-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── MAIN ── */
+#main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+#toolbar {
+  height: 48px; border-bottom: 1px solid var(--border); display: flex;
+  align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+#toolbar h1 { font-size: 0.95rem; font-weight: 600; display: flex;
+  align-items: center; gap: 8px; }
+#toolbar h1 .sub { font-weight: 400; color: var(--muted); font-size: 0.8rem; }
+#diagram-area { flex: 1; position: relative; overflow: hidden; }
+#diagram-svg { width: 100%; height: 100%; }
+
+/* ── RIGHT SIDEBAR ── */
+#sidebar {
+  width: var(--side-w); min-width: var(--side-w); background: var(--panel);
+  border-left: 1px solid var(--border); overflow-y: auto;
+  transition: margin-right 0.3s;
+}
+#sidebar.collapsed { margin-right: calc(var(--side-w) * -1); }
+.side-header { padding: 16px; border-bottom: 1px solid var(--border); }
+.side-header h3 { font-size: 0.8rem; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 1px; }
+.side-header h2 { font-size: 1.1rem; font-weight: 600; margin-top: 4px; }
+.side-body { padding: 16px; }
+.side-body .field { margin-bottom: 16px; }
+.side-body .field-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 4px; }
+.side-body .field-value { font-size: 0.85rem; line-height: 1.5; }
+.side-body .tag { display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 0.75rem; font-weight: 600; margin: 2px; }
+.tag-blue { background: rgba(59,130,246,0.15); color: var(--accent); }
+.tag-green { background: rgba(34,197,94,0.15); color: var(--green); }
+.tag-orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+.tag-red { background: rgba(239,68,68,0.15); color: var(--red); }
+.tag-purple { background: rgba(139,92,246,0.15); color: var(--purple); }
+.tag-cyan { background: rgba(6,182,212,0.15); color: var(--cyan); }
+
+/* ── SVG styles (injected) ── */
+.node-rect { cursor: pointer; transition: filter 0.2s; }
+.node-rect:hover { filter: brightness(1.3); }
+.node-rect.active-node { filter: brightness(1.4); stroke-width: 2.5; }
+.node-label { pointer-events: none; user-select: none; }
+.edge-line { fill: none; stroke-width: 2; }
+.edge-path { fill: none; stroke-width: 2; }
+.edge-arrow { fill: none; stroke-width: 1.5; }
+.flow-dot { animation: flowMove 2s linear infinite; }
+@keyframes flowMove { to { stroke-dashoffset: -20; } }
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; } 50% { opacity: 1; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  #sidebar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- LEFT RAIL -->
+<nav id="nav">
+  <div class="nav-header">
+    <h2>Desaladora RO</h2>
+    <p>Manual interactivo</p>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Diagramas</div>
+    <div class="nav-item active" data-diagram="arq" onclick="switchDiagram('arq')">
+      <span class="dot" style="background:var(--accent)"></span> Arquitectura General
+    </div>
+    <div class="nav-item" data-diagram="data" onclick="switchDiagram('data')">
+      <span class="dot" style="background:var(--cyan)"></span> Flujo de Datos
+    </div>
+    <div class="nav-item" data-diagram="modbus" onclick="switchDiagram('modbus')">
+      <span class="dot" style="background:var(--orange)"></span> Mapa Modbus
+    </div>
+    <div class="nav-item" data-diagram="ro" onclick="switchDiagram('ro')">
+      <span class="dot" style="background:var(--green)"></span> Proceso RO
+    </div>
+    <div class="nav-item" data-diagram="services" onclick="switchDiagram('services')">
+      <span class="dot" style="background:var(--purple)"></span> Servicios
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Info</div>
+    <div class="nav-item" onclick="showProjectInfo()">
+      <span class="dot" style="background:var(--muted)"></span> Sobre el proyecto
+    </div>
+  </div>
+</nav>
+
+<button id="nav-toggle" onclick="toggleNav()">☰</button>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="toolbar">
+    <h1 id="toolbar-title"><span id="diagram-icon" style="color:var(--accent)">◆</span> Arquitectura General <span class="sub" id="diagram-sub">Visión general del sistema</span></h1>
+  </div>
+  <div id="diagram-area">
+    <svg id="diagram-svg"></svg>
+  </div>
+</div>
+
+<!-- RIGHT SIDEBAR -->
+<aside id="sidebar">
+  <div class="side-header">
+    <h3 id="side-type">NODO</h3>
+    <h2 id="side-title">Selecciona un nodo</h2>
+  </div>
+  <div class="side-body" id="side-body">
+    <p style="color:var(--muted);font-size:0.85rem">Haz clic en cualquier componente del diagrama para ver sus detalles técnicos.</p>
+  </div>
+</aside>
+
+<script>
+// ─── GLOBALS ───
+const COLORS = {
+  accent: '#3b82f6', green: '#22c55e', red: '#ef4444', orange: '#f59e0b',
+  cyan: '#06b6d4', purple: '#8b5cf6', muted: '#64748b', panel: '#111827',
+  border: '#1e293b', text: '#e2e8f0', pipe: '#3b82f6', dark: '#0a0e17',
+};
+
+const DIAGRAM_META = {
+  arq: { icon: '◆', title: 'Arquitectura General', sub: 'Visión general del sistema' },
+  data: { icon: '↗', title: 'Flujo de Datos', sub: 'Recorrido de la información desde el simulador hasta el navegador' },
+  modbus: { icon: '☰', title: 'Mapa Modbus', sub: 'Registros de comunicación entre simulador y SCADA' },
+  ro: { icon: '◇', title: 'Proceso RO', sub: 'Diagrama de flujo del proceso de osmosis inversa' },
+  services: { icon: '⚙', title: 'Servicios', sub: 'Infraestructura de servicios y dependencias' },
+};
+
+const NODE_DETAILS = {
+  // ── Arquitectura ──
+  sim: {
+    type: 'SIMULADOR', title: 'desaladora_sim.py',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Simulador Python que emula 21 instrumentos de planta RO vía Modbus TCP. Publica datos en tiempo real con ruido gaussiano y tendencias lentas.</div></div>
+    <div class="field"><div class="field-label">Puerto</div><div class="field-value"><span class="tag tag-orange">TCP :502</span></div></div>
+    <div class="field"><div class="field-label">Tecnología</div><div class="field-value"><span class="tag tag-blue">Python 3</span> <span class="tag tag-cyan">pymodbus 3.13</span></div></div>
+    <div class="field"><div class="field-label">Tags simulados</div><div class="field-value">17 analógicos (float32) + 4 digitales (coils)</div></div>
+    <div class="field"><div class="field-label">Archivo</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">simulator/desaladora_sim.py</div></div>`
+  },
+  comm: {
+    type: 'COMUNICADOR', title: 'Rapid SCADA Comm',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Módulo de comunicación que actúa como cliente Modbus TCP. Lee todos los registros del simulador cada 1s y los envía al motor SCADA Server.</div></div>
+    <div class="field"><div class="field-label">Driver</div><div class="field-value"><span class="tag tag-orange">DrvModbus</span></div></div>
+    <div class="field"><div class="field-label">Conexión</div><div class="field-value"><span class="tag tag-blue">localhost:502</span> → <span class="tag tag-cyan">Server :10000</span></div></div>
+    <div class="field"><div class="field-label">Config</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">ScadaCommApp/Config/ScadaCommConfig.xml</div></div>`
+  },
+  server: {
+    type: 'MOTOR SCADA', title: 'Rapid SCADA Server',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Motor central del sistema SCADA. Recibe datos del Communicator, procesa fórmulas, evalúa alarmas y almacena históricos en archivos Min y Hour.</div></div>
+    <div class="field"><div class="field-label">Puerto</div><div class="field-value"><span class="tag tag-orange">TCP :10000</span></div></div>
+    <div class="field"><div class="field-label">Archivos</div><div class="field-value"><span class="tag tag-blue">Cur (corriente)</span> <span class="tag tag-green">Min (minuto)</span> <span class="tag tag-orange">Hour (hora)</span> <span class="tag tag-red">Events</span></div></div>
+    <div class="field"><div class="field-label">Retención</div><div class="field-value">365 días</div></div>`
+  },
+  web: {
+    type: 'INTERFAZ WEB', title: 'Rapid SCADA Web',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Interfaz HMI web servida por ASP.NET Core. 4 vistas: General (P&ID), Tendencias, Alarmas, Producción. Refresco cada 1s.</div></div>
+    <div class="field"><div class="field-label">URL</div><div class="field-value"><span class="tag tag-green">http://localhost:5000</span></div></div>
+    <div class="field"><div class="field-label">Plugins</div><div class="field-value"><span class="tag tag-blue">PlgScheme</span> <span class="tag tag-cyan">PlgChart</span> <span class="tag tag-purple">PlgMain</span></div></div>
+    <div class="field"><div class="field-label">Login</div><div class="field-value"><span class="tag tag-blue">admin</span> / scada123</div></div>`
+  },
+  dash: {
+    type: 'DASHBOARD', title: 'FastAPI Dashboard',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Dashboard alternativo con API REST. Lee directamente del simulador Modbus y sirve un frontend con Chart.js. Ideal para integraciones y demos rápidas.</div></div>
+    <div class="field"><div class="field-label">URL</div><div class="field-value"><span class="tag tag-green">http://localhost:8000</span></div></div>
+    <div class="field"><div class="field-label">Endpoints</div><div class="field-value"><span class="tag tag-blue">GET /api/live</span> <span class="tag tag-cyan">GET /api/history</span></div></div>
+    <div class="field"><div class="field-label">Stack</div><div class="field-value"><span class="tag tag-orange">FastAPI</span> <span class="tag tag-purple">Chart.js</span> <span class="tag tag-green">SVG</span></div></div>`
+  },
+  // ── Flujo de Datos ──
+  sensor: {
+    type: 'FUENTE', title: 'Simulador de Planta',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Proceso Python que simula 17 variables analógicas y 4 digitales de una planta de osmosis inversa. Publica como servidor Modbus TCP.</div></div>
+    <div class="field"><div class="field-label">Registros</div><div class="field-value"><span class="tag tag-blue">HR 1-34</span> Float32 Big-endian (17 pares) <br><span class="tag tag-orange">Coils 1-4</span> SP101, SP102, ALRM1, ALRM2</div></div>`
+  },
+  modbus_line: {
+    type: 'PROTOCOLO', title: 'Modbus TCP',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Protocolo de comunicación industrial. El Comm de Rapid SCADA actúa como cliente Modbus TCP, el simulador como servidor.</div></div>
+    <div class="field"><div class="field-label">Request</div><div class="field-value">Cada 1s: read_holding_registers(addr=1, count=34) + read_coils(addr=1, count=4)</div></div>
+    <div class="field"><div class="field-label">Timeout</div><div class="field-value">3000ms, 3 reintentos</div></div>`
+  },
+  comm_adapter: {
+    type: 'ADAPTADOR', title: 'Comm → Server Adapter',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">El Comm transforma registros Modbus en canales SCADA (Cnl 101-121) y los envía al Server mediante la API interna TCP.</div></div>
+    <div class="field"><div class="field-label">Mapeo</div><div class="field-value">21 canales SCADA → 21 registros/tags Modbus</div></div>`
+  },
+  scada_core: {
+    type: 'PROCESAMIENTO', title: 'SCADA Engine',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">El motor SCADA recibe los 21 canales, calcula fórmulas (RECOV = FT201/FT101*100), evalúa límites de alarma y escribe históricos.</div></div>
+    <div class="field"><div class="field-label">Alarmas</div><div class="field-value">CT-201 > 400 → ALRM-1 activa<br>PT-101 > 62 → ALRM-2 activa</div></div>
+    <div class="field"><div class="field-label">Fórmulas</div><div class="field-value">RECOV = FT-201/FT-101×100<br>REJEC = (1-CT-201/CT-101)×100</div></div>`
+  },
+  hmi_rapid: {
+    type: 'PRESENTACIÓN', title: 'Rapid SCADA Web',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">4 vistas HMI: General (P&ID SVG), Tendencias (24h chart), Alarmas (histórico eventos), Producción (KPIs). Refresco automático cada 1 segundo.</div></div>`
+  },
+  hmi_fast: {
+    type: 'PRESENTACIÓN', title: 'FastAPI Dashboard',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Dashboard alternativo con P&ID SVG animado, 6 gauges, chart en tiempo real y API REST. Polling al simulador cada 1s.</div></div>`
+  },
+  // ── Proceso RO ──
+  intake: {
+    type: 'CAPTACIÓN', title: 'Agua de Mar',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Captación de agua de mar. Conductividad típica: 45000-55000 µS/cm. pH: 6.8-7.2. Temperatura: 18-25°C.</div></div>
+    <div class="field"><div class="field-label">Tags</div><div class="field-value"><span class="tag tag-blue">CT-101</span> <span class="tag tag-cyan">AT-101</span> <span class="tag tag-green">TT-101</span></div></div>`
+  },
+  lp_pump: {
+    type: 'BOMBEO LP', title: 'Bomba Baja Presión',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Bomba de alimentación a baja presión (2-4 bar). Eleva el agua desde la captación hacia la bomba de alta presión.</div></div>
+    <div class="field"><div class="field-label">Tags</div><div class="field-value"><span class="tag tag-orange">SP-102</span> <span class="tag tag-blue">PT-102</span></div></div>`
+  },
+  hp_pump: {
+    type: 'BOMBEO HP', title: 'Bomba Alta Presión',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Bomba principal que presuriza el agua a 55-65 bar para forzar el paso por las membranas de osmosis inversa. Consume 45-55 kW.</div></div>
+    <div class="field"><div class="field-label">Tags</div><div class="field-value"><span class="tag tag-orange">SP-101</span> <span class="tag tag-red">PT-101</span> <span class="tag tag-cyan">KW-101</span></div></div>`
+  },
+  antiscalant: {
+    type: 'DOSIFICACIÓN', title: 'Válvula Antiscalant',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Dosificación de antiscalant para prevenir la precipitación de sales en las membranas. Apertura 0-100%.</div></div>
+    <div class="field"><div class="field-label">Tags</div><div class="field-value"><span class="tag tag-purple">VL-101</span></div></div>`
+  },
+  membranes: {
+    type: 'MEMBRANAS', title: 'Osmosis Inversa',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Módulo de membranas RO. Separa el agua en dos corrientes: permeado (agua tratada) y concentrado (rechazo salino). Tasa de recuperación: 40-55%. Rechazo de sal: 98-99.9%.</div></div>
+    <div class="field"><div class="field-label">KPIs</div><div class="field-value"><span class="tag tag-green">RECOV</span> <span class="tag tag-blue">REJEC</span></div></div>`
+  },
+  permeate: {
+    type: 'PRODUCTO', title: 'Permeado (Agua Tratada)',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Agua desalinizada. Conductividad: 100-300 µS/cm. pH: 6.5-7.0. Caudal: 40-60 m³/h.</div></div>
+    <div class="field"><div class="field-label">Tags</div><div class="field-value"><span class="tag tag-blue">FT-201</span> <span class="tag tag-green">CT-201</span> <span class="tag tag-cyan">AT-201</span> <span class="tag tag-orange">PT-201</span> <span class="tag tag-purple">PROD-H</span> <span class="tag tag-purple">PROD-D</span></div></div>`
+  },
+  concentrate: {
+    type: 'RECHAZO', title: 'Concentrado (Salmuera)',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Corriente de rechazo con alta concentración de sales. Caudal: 30-50 m³/h.</div></div>
+    <div class="field"><div class="field-label">Tags</div><div class="field-value"><span class="tag tag-red">FT-301</span></div></div>`
+  },
+  alarm1: {
+    type: 'ALARMA', title: 'ALRM-1 — Conductividad Alta',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Se activa cuando la conductividad del permeado supera 400 µS/cm, indicando degradación de membranas.</div></div>
+    <div class="field"><div class="field-label">Umbral</div><div class="field-value">CT-201 > 400 µS/cm</div></div>`
+  },
+  alarm2: {
+    type: 'ALARMA', title: 'ALRM-2 — Presión Alta',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Se activa cuando la presión de alta supera 62 bar, indicando posible obstrucción de membranas o problema en la bomba HP.</div></div>
+    <div class="field"><div class="field-label">Umbral</div><div class="field-value">PT-101 > 62 bar</div></div>`
+  },
+  // ── Servicios ──
+  svc_sim: {
+    type: 'SERVICIO', title: 'desaladora-sim.service',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Servicio systemd que ejecuta el simulador Python. Publica datos en puerto 502.</div></div>
+    <div class="field"><div class="field-label">Comando</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">python3 /opt/scada/simulator/desaladora_sim.py</div></div>
+    <div class="field"><div class="field-label">Puerto</div><div class="field-value"><span class="tag tag-orange">:502</span></div></div>
+    <div class="field"><div class="field-label">Depende de</div><div class="field-value">Ninguna</div></div>`
+  },
+  svc_server: {
+    type: 'SERVICIO', title: 'scada-server.service',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Motor central de Rapid SCADA. Escucha en puerto 10000 para conexiones de Comm y Web.</div></div>
+    <div class="field"><div class="field-label">Binario</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">/opt/scada/ScadaServerApp/ScadaServerApp</div></div>
+    <div class="field"><div class="field-label">Puerto</div><div class="field-value"><span class="tag tag-orange">:10000</span></div></div>`
+  },
+  svc_comm: {
+    type: 'SERVICIO', title: 'scada-comm.service',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Comunicador Modbus. Se conecta al simulador (:502) y envía datos al Server (:10000).</div></div>
+    <div class="field"><div class="field-label">Binario</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">/opt/scada/ScadaCommApp/ScadaCommApp</div></div>
+    <div class="field"><div class="field-label">Depende de</div><div class="field-value"><span class="tag tag-green">scada-server.service</span> <span class="tag tag-cyan">desaladora-sim.service</span></div></div>`
+  },
+  svc_web: {
+    type: 'SERVICIO', title: 'scada-web.service',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Servidor web ASP.NET Core con la interfaz HMI. Sirve en puerto 5000.</div></div>
+    <div class="field"><div class="field-label">Binario</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">/opt/scada/ScadaWeb/ScadaWeb</div></div>
+    <div class="field"><div class="field-label">Puerto</div><div class="field-value"><span class="tag tag-green">:5000</span></div></div>
+    <div class="field"><div class="field-label">Depende de</div><div class="field-value"><span class="tag tag-green">scada-server.service</span></div></div>`
+  },
+  svc_dash: {
+    type: 'SERVICIO', title: 'FastAPI Dashboard',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Servicio Python con FastAPI para el dashboard alternativo. Puerta de entrada para integraciones REST.</div></div>
+    <div class="field"><div class="field-label">Comando</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">uvicorn api:app --host 0.0.0.0 --port 8000</div></div>
+    <div class="field"><div class="field-label">Puerto</div><div class="field-value"><span class="tag tag-cyan">:8000</span></div></div>`
+  },
+  // ── Modbus ──
+  mb_hr: {
+    type: 'REGISTROS', title: 'Holding Registers (HR 1-34)',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">17 pares de registros consecutivos almacenados en formato Float32 Big-endian (Motorola). Cada par = 1 variable analógica.</div></div>
+    <div class="field"><div class="field-label">Acceso</div><div class="field-value">read_holding_registers(address=1, count=34)</div></div>
+    <div class="field"><div class="field-label">Ejemplo</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">HR 1-2 → FT-101 (float32)<br>HR 3-4 → FT-201 (float32)<br>...<br>HR 33-34 → PROD-D (float32)</div></div>`
+  },
+  mb_coils: {
+    type: 'REGISTROS', title: 'Coils (address 1-4)',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">4 coils digitales empaquetados en el primer registro del bloque de bits. Representan estados ON/OFF de bombas y alarmas.</div></div>
+    <div class="field"><div class="field-label">Acceso</div><div class="field-value">read_coils(address=1, count=4)</div></div>
+    <div class="field"><div class="field-label">Mapa de bits</div><div class="field-value"><span class="tag tag-blue">Bit 1</span> SP-101 Bomba HP<br><span class="tag tag-green">Bit 2</span> SP-102 Bomba LP<br><span class="tag tag-orange">Bit 3</span> ALRM-1 Conductividad<br><span class="tag tag-red">Bit 4</span> ALRM-2 Presión</div></div>`
+  },
+  mb_driver: {
+    type: 'DRIVER', title: 'DrvModbus_Desaladora.xml',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Archivo de configuración del driver Modbus que mapea cada TagCode (ej. FT101) a un registro Modbus y tipo de dato.</div></div>
+    <div class="field"><div class="field-label">Ubicación</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">ScadaCommApp/drv/DrvModbus_Desaladora.xml</div></div>`
+  },
+  mb_rapid: {
+    type: 'SCADA', title: 'Rapid SCADA Cnl.xml',
+    body: `<div class="field"><div class="field-label">Descripción</div><div class="field-value">Archivo de configuración que define los 21 canales SCADA (Cnl 101-121) que reciben los datos del driver Modbus.</div></div>
+    <div class="field"><div class="field-label">Ubicación</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">Projects/Desaladora/BaseXML/Cnl.xml</div></div>
+    <div class="field"><div class="field-label">Estructura</div><div class="field-value">Cada canal tiene: número, nombre, TipoDato, TagCode, Formato, Límite de alarma y máscara de archivo.</div></div>`
+  },
+};
+
+// ─── DRAWING ───
+const SVG = document.getElementById('diagram-svg');
+const W = () => document.getElementById('diagram-area').clientWidth;
+const H = () => document.getElementById('diagram-area').clientHeight;
+
+function clearSVG() { SVG.innerHTML = ''; }
+
+function createNode(svg, x, y, w, h, label, sub, id, color, opts = {}) {
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('data-id', id);
+  g.style.cursor = 'pointer';
+
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', opts.rx || 8);
+  rect.setAttribute('fill', opts.fill || 'var(--panel)');
+  rect.setAttribute('stroke', color);
+  rect.setAttribute('stroke-width', '1.5');
+  rect.classList.add('node-rect');
+  g.appendChild(rect);
+
+  if (opts.icon) {
+    const ic = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    ic.setAttribute('x', x + w/2); ic.setAttribute('y', y + 24);
+    ic.setAttribute('text-anchor', 'middle'); ic.setAttribute('fill', color);
+    ic.setAttribute('font-size', opts.iconSize || '16');
+    ic.textContent = opts.icon;
+    g.appendChild(ic);
+  }
+
+  const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  lbl.setAttribute('x', x + w/2); lbl.setAttribute('y', y + h/2 + 4);
+  lbl.setAttribute('text-anchor', 'middle'); lbl.setAttribute('fill', 'var(--text)');
+  lbl.setAttribute('font-size', '12'); lbl.setAttribute('font-weight', '600');
+  lbl.classList.add('node-label');
+  lbl.textContent = label;
+  g.appendChild(lbl);
+
+  if (sub) {
+    const s = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    s.setAttribute('x', x + w/2); s.setAttribute('y', y + h/2 + 20);
+    s.setAttribute('text-anchor', 'middle'); s.setAttribute('fill', 'var(--muted)');
+    s.setAttribute('font-size', '9');
+    s.classList.add('node-label');
+    s.textContent = sub;
+    g.appendChild(s);
+  }
+
+  g.addEventListener('click', () => selectNode(id));
+  g.addEventListener('mouseenter', () => { rect.classList.add('active-node'); });
+  g.addEventListener('mouseleave', () => { rect.classList.remove('active-node'); });
+  svg.appendChild(g);
+  return { g, rect, cx: x + w/2, cy: y + h/2 };
+}
+
+function createEdge(svg, x1, y1, x2, y2, color, dashed = false, animated = false) {
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+  line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+  line.setAttribute('stroke', color);
+  line.setAttribute('stroke-width', '2');
+  line.classList.add('edge-line');
+  if (dashed) line.setAttribute('stroke-dasharray', '6 3');
+  if (animated) { line.setAttribute('stroke-dasharray', '10 6'); line.classList.add('flow-dot'); }
+  svg.insertBefore(line, svg.firstChild);
+}
+
+function createEdgePath(svg, path, color, dashed = false, animated = false) {
+  const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  p.setAttribute('d', path);
+  p.setAttribute('fill', 'none'); p.setAttribute('stroke', color);
+  p.setAttribute('stroke-width', '2');
+  p.classList.add('edge-path');
+  if (dashed) p.setAttribute('stroke-dasharray', '6 3');
+  if (animated) { p.setAttribute('stroke-dasharray', '10 6'); p.classList.add('flow-dot'); }
+  svg.insertBefore(p, svg.firstChild);
+}
+
+function createArrowhead(svg, id, color) {
+  const defs = SVG.querySelector('defs') || (() => { const d = document.createElementNS('http://www.w3.org/2000/svg','defs'); SVG.appendChild(d); return d; })();
+  const existing = defs.querySelector(`#${id}`);
+  if (existing) return;
+  const m = document.createElementNS('http://www.w3.org/2000/svg','marker');
+  m.setAttribute('id', id); m.setAttribute('markerWidth', '8'); m.setAttribute('markerHeight', '8');
+  m.setAttribute('refX', '8'); m.setAttribute('refY', '4'); m.setAttribute('orient', 'auto');
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points', '0 0, 8 4, 0 8');
+  poly.setAttribute('fill', color);
+  m.appendChild(poly); defs.appendChild(m);
+}
+
+// ─── SELECT NODE ───
+function selectNode(id) {
+  document.querySelectorAll('.node-rect').forEach(r => r.classList.remove('active-node'));
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) el.querySelector('.node-rect').classList.add('active-node');
+  const detail = NODE_DETAILS[id];
+  if (detail) {
+    document.getElementById('side-type').textContent = detail.type;
+    document.getElementById('side-title').textContent = detail.title;
+    document.getElementById('side-body').innerHTML = detail.body;
+  }
+}
+
+// ─── PROJECT INFO ───
+function showProjectInfo() {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('side-type').textContent = 'PROYECTO';
+  document.getElementById('side-title').textContent = 'Desaladora RO SCADA';
+  document.getElementById('side-body').innerHTML = `
+    <div class="field"><div class="field-label">Descripción</div><div class="field-value">Demo funcional de un sistema SCADA para planta desaladora de osmosis inversa (RO). Construido con Rapid SCADA v6 + simulador Python Modbus + dashboard FastAPI.</div></div>
+    <div class="field"><div class="field-label">Componentes</div><div class="field-value">
+      <span class="tag tag-blue">Simulador Python</span>
+      <span class="tag tag-green">Rapid SCADA Server</span>
+      <span class="tag tag-orange">Rapid SCADA Comm</span>
+      <span class="tag tag-purple">Rapid SCADA Web</span>
+      <span class="tag tag-cyan">FastAPI Dashboard</span>
+    </div></div>
+    <div class="field"><div class="field-label">Variables</div><div class="field-value">21 canales: 17 analógicos + 4 digitales. Caudales, presiones, conductividad, pH, temperatura, potencia, alarmas.</div></div>
+    <div class="field"><div class="field-label">Protocolo</div><div class="field-value">Modbus TCP — puerto 502</div></div>
+    <div class="field"><div class="field-label">Servicios</div><div class="field-value">4 systemd + FastAPI opcional</div></div>
+    <div class="field"><div class="field-label">Repo</div><div class="field-value" style="font-family:monospace;font-size:0.8rem">github.com/iamluisgb/desaladora-scada-demo</div></div>
+    <div class="field"><div class="field-label">Demo / Clientes</div><div class="field-value">Ver <code>DEMO_SCRIPT.md</code> — guía completa de 15-20 min</div></div>
+  `;
+}
+
+// ─── DIAGRAM BUILDERS ───
+
+function buildArquitectura() {
+  const cw = W(), ch = H();
+  const cx = cw/2, cy = ch/2;
+  const nw = 170, nh = 60;
+
+  // Title
+  const title = document.createElementNS('http://www.w3.org/2000/svg','text');
+  title.setAttribute('x', cx); title.setAttribute('y', 28);
+  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', 'var(--muted)');
+  title.setAttribute('font-size', '11'); title.setAttribute('font-weight', '600');
+  title.setAttribute('letter-spacing', '2');
+  title.textContent = 'ARQUITECTURA DEL SISTEMA';
+  SVG.appendChild(title);
+
+  // Nodes
+  const sim = createNode(SVG, cx - nw/2, 50, nw, nh, 'desaladora_sim.py', 'Puerto :502', 'sim', COLORS.cyan, {icon:'▶',iconSize:'12'});
+  const comm = createNode(SVG, cx - nw/2, 180, nw, nh, 'Rapid SCADA Comm', 'Cliente Modbus', 'comm', COLORS.accent, {icon:'⇄',iconSize:'14'});
+  const server = createNode(SVG, cx - nw/2, 310, nw, nh, 'Rapid SCADA Server', 'Puerto :10000', 'server', COLORS.orange, {icon:'⚙',iconSize:'16'});
+  const web = createNode(SVG, 150, 440, nw, nh, 'Rapid SCADA Web', 'Puerto :5000', 'web', COLORS.green, {icon:'☀',iconSize:'16'});
+  const dash = createNode(SVG, cx + 20, 440, nw, nh, 'FastAPI Dashboard', 'Puerto :8000', 'dash', COLORS.purple, {icon:'◉',iconSize:'16'});
+
+  // Edges
+  createArrowhead(SVG, 'arrow-cyan', COLORS.cyan);
+  createArrowhead(SVG, 'arrow-blue', COLORS.accent);
+  createArrowhead(SVG, 'arrow-orange', COLORS.orange);
+  createArrowhead(SVG, 'arrow-green', COLORS.green);
+  createArrowhead(SVG, 'arrow-purple', COLORS.purple);
+  createArrowhead(SVG, 'arrow-cyan-dim', '#1e3a5f');
+
+  const arrowLine = (x1,y1,x2,y2,color,id,anim) => {
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke',color); l.setAttribute('stroke-width','2');
+    l.setAttribute('marker-end',`url(#${id})`);
+    if (anim) { l.setAttribute('stroke-dasharray','8 4'); l.classList.add('flow-dot'); }
+    SVG.insertBefore(l, SVG.firstChild);
+  };
+
+  arrowLine(sim.cx, sim.cy + nh/2, comm.cx, comm.cy - nh/2, COLORS.cyan, 'arrow-cyan', true);
+  arrowLine(comm.cx, comm.cy + nh/2, server.cx, server.cy - nh/2, COLORS.accent, 'arrow-blue', true);
+  arrowLine(server.cx - 30, server.cy + nh/2, web.cx, web.cy - nh/2, COLORS.orange, 'arrow-orange', true);
+  arrowLine(server.cx + 30, server.cy + nh/2, dash.cx, dash.cy - nh/2, COLORS.orange, 'arrow-purple', true);
+
+  // Labels on edges
+  const lbl = (x, y, text) => {
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x); t.setAttribute('y', y);
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('fill', 'var(--muted)');
+    t.setAttribute('font-size', '9');
+    t.textContent = text;
+    SVG.appendChild(t);
+  };
+  lbl(sim.cx + 10, sim.cy + nh + 8, 'Modbus TCP');
+  lbl(comm.cx + 10, comm.cy + nh + 8, 'API interna');
+  lbl(server.cx + 30, server.cy + nh + 30, 'HTTP');
+  lbl(server.cx + 10, server.cy + nh + 55, 'HTTP');
+
+  // Legend
+  const lgx = 20, lgy = ch - 90;
+  const lg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  lg.setAttribute('x', lgx); lg.setAttribute('y', lgy);
+  lg.setAttribute('width', 140); lg.setAttribute('height', 70);
+  lg.setAttribute('fill', 'var(--panel)'); lg.setAttribute('stroke', 'var(--border)');
+  lg.setAttribute('rx', '6');
+  SVG.appendChild(lg);
+  const legendItems = [
+    [COLORS.cyan, 'Python / Simulador'],
+    [COLORS.accent, 'Rapid SCADA'],
+    [COLORS.purple, 'FastAPI / Dashboard'],
+    [COLORS.green, 'Interfaz Web'],
+  ];
+  legendItems.forEach(([c, l], i) => {
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx', lgx + 15); dot.setAttribute('cy', lgy + 20 + i*14);
+    dot.setAttribute('r', '4'); dot.setAttribute('fill', c);
+    SVG.appendChild(dot);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', lgx + 26); t.setAttribute('y', lgy + 24 + i*14);
+    t.setAttribute('fill', 'var(--text)'); t.setAttribute('font-size', '10');
+    t.textContent = l;
+    SVG.appendChild(t);
+  });
+
+  // Select first node by default
+  selectNode('sim');
+}
+
+function buildFlujoDatos() {
+  const cw = W(), ch = H();
+  const nw = 160, nh = 50;
+  createArrowhead(SVG, 'arr-cyan', COLORS.cyan);
+  createArrowhead(SVG, 'arr-blue', COLORS.accent);
+  createArrowhead(SVG, 'arr-orange', COLORS.orange);
+  createArrowhead(SVG, 'arr-green', COLORS.green);
+  createArrowhead(SVG, 'arr-purple', COLORS.purple);
+
+  const title = document.createElementNS('http://www.w3.org/2000/svg','text');
+  title.setAttribute('x', cw/2); title.setAttribute('y', 28);
+  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', 'var(--muted)');
+  title.setAttribute('font-size', '11'); title.setAttribute('font-weight', '600');
+  title.textContent = 'FLUJO DE DATOS — DEL SENSOR AL NAVEGADOR';
+  SVG.appendChild(title);
+
+  // Row 1: Source
+  const sensor = createNode(SVG, cw/2 - nw/2, 50, nw, nh, 'Simulador Planta', '17 analog + 4 digital', 'sensor', COLORS.cyan, {icon:'◈',iconSize:'14'});
+
+  // Row 2: Modbus + Adapter
+  const mb = createNode(SVG, 60, 180, nw, nh, 'Modbus TCP', 'Protocolo industrial', 'modbus_line', COLORS.orange, {icon:'☰',iconSize:'16'});
+  const adapter = createNode(SVG, cw/2 - nw/2, 180, nw, nh, 'Comm Adapter', 'DrvModbus → Cnl', 'comm_adapter', COLORS.accent, {icon:'⇄',iconSize:'14'});
+
+  // Row 3: SCADA Core
+  const core = createNode(SVG, cw/2 - nw/2, 310, nw, nh, 'SCADA Engine', 'Fórmulas + Alarmas', 'scada_core', COLORS.orange, {icon:'⚙',iconSize:'16'});
+
+  // Row 4: Presentation
+  const hmi_r = createNode(SVG, 100, 440, nw - 20, nh, 'Rapid SCADA Web', 'HMI principal', 'hmi_rapid', COLORS.green, {icon:'☀',iconSize:'16'});
+  const hmi_f = createNode(SVG, cw/2 + 20, 440, nw - 20, nh, 'FastAPI Dashboard', 'Dashboard alternativo', 'hmi_fast', COLORS.purple, {icon:'◉',iconSize:'16'});
+
+  // Edges
+  const al = (x1,y1,x2,y2,c,aid,anim,style) => {
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke',c); l.setAttribute('stroke-width','2');
+    if (aid) l.setAttribute('marker-end',`url(#${aid})`);
+    if (anim) { l.setAttribute('stroke-dasharray','8 4'); l.classList.add('flow-dot'); }
+    if (style) Object.entries(style).forEach(([k,v])=>l.setAttribute(k,v));
+    SVG.insertBefore(l, SVG.firstChild);
+  };
+
+  al(sensor.cx, sensor.cy+nh/2, mb.cx+30, mb.cy-nh/2, COLORS.cyan, 'arr-cyan', true);
+  al(sensor.cx, sensor.cy+nh/2, adapter.cx-30, adapter.cy-nh/2, COLORS.cyan, 'arr-cyan', true);
+  al(adapter.cx, adapter.cy+nh/2, core.cx, core.cy-nh/2, COLORS.accent, 'arr-blue', true);
+  al(core.cx-40, core.cy+nh/2, hmi_r.cx, hmi_r.cy-nh/2, COLORS.orange, 'arr-green', true);
+  al(core.cx+40, core.cy+nh/2, hmi_f.cx, hmi_f.cy-nh/2, COLORS.orange, 'arr-purple', true);
+  // Direct dash to sim
+  al(sensor.cx+30, sensor.cy+nh/2, hmi_f.cx, hmi_f.cy-nh/2, COLORS.cyan, 'arr-purple', true);
+  // Label for direct dash
+  const dl = document.createElementNS('http://www.w3.org/2000/svg','text');
+  dl.setAttribute('x', cw/2 + 10); dl.setAttribute('y', 380);
+  dl.setAttribute('fill', 'var(--muted)'); dl.setAttribute('font-size', '8');
+  dl.textContent = 'Lectura directa Modbus (FastAPI)';
+  SVG.appendChild(dl);
+
+  // Subtitle
+  const st = document.createElementNS('http://www.w3.org/2000/svg','text');
+  st.setAttribute('x', 20); st.setAttribute('y', ch-20);
+  st.setAttribute('fill', 'var(--muted)'); st.setAttribute('font-size', '9');
+  st.textContent = '▲ Flechas animadas = flujo continuo de datos (polling 1s)';
+  SVG.appendChild(st);
+
+  selectNode('sensor');
+}
+
+function buildModbus() {
+  const cw = W(), ch = H(), cx = cw/2;
+  const nw = 180, nh = 50;
+  createArrowhead(SVG, 'a-cyan', COLORS.cyan);
+  createArrowhead(SVG, 'a-blue', COLORS.accent);
+  createArrowhead(SVG, 'a-orange', COLORS.orange);
+
+  const title = document.createElementNS('http://www.w3.org/2000/svg','text');
+  title.setAttribute('x', cx); title.setAttribute('y', 28);
+  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', 'var(--muted)');
+  title.setAttribute('font-size', '11'); title.setAttribute('font-weight', '600');
+  title.textContent = 'MAPA DE COMUNICACIÓN MODBUS';
+  SVG.appendChild(title);
+
+  // Simulador
+  const sim = createNode(SVG, cx - nw/2, 50, nw, nh, 'Simulador Modbus', 'Servidor TCP :502', 'sim', COLORS.cyan, {icon:'◈',iconSize:'14'});
+
+  // HR & Coils
+  const hr = createNode(SVG, 60, 170, nw, 65, 'Holding Registers', 'HR 1-34 (Float32 BE)', 'mb_hr', COLORS.accent, {icon:'☰',iconSize:'16'});
+  const coils = createNode(SVG, cx + 20, 170, nw, 65, 'Coils', 'Coils 1-4 (bits)', 'mb_coils', COLORS.orange, {icon:'▪',iconSize:'16'});
+
+  // Driver + Rapid
+  const drv = createNode(SVG, 60, 310, nw, 50, 'DrvModbus XML', 'Mapeo Tag→Registro', 'mb_driver', COLORS.green, {icon:'📄',iconSize:'14'});
+  const rapid = createNode(SVG, cx + 20, 310, nw, 50, 'Rapid Cnl.xml', 'Canales SCADA 101-121', 'mb_rapid', COLORS.purple, {icon:'📄',iconSize:'14'});
+
+  // Edges
+  const al = (x1,y1,x2,y2,c,aid,anim) => {
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke',c); l.setAttribute('stroke-width','2');
+    l.setAttribute('marker-end',`url(#${aid})`);
+    if (anim) { l.setAttribute('stroke-dasharray','8 4'); l.classList.add('flow-dot'); }
+    SVG.insertBefore(l, SVG.firstChild);
+  };
+
+  al(sim.cx-20, sim.cy+nh/2, hr.cx+30, hr.cy-nh/2, COLORS.cyan, 'a-blue', true);
+  al(sim.cx+20, sim.cy+nh/2, coils.cx-30, coils.cy-nh/2, COLORS.cyan, 'a-orange', true);
+  al(hr.cx, hr.cy+nh/2, drv.cx, drv.cy-nh/2, COLORS.accent, 'a-green', true);
+  al(coils.cx, coils.cy+nh/2, rapid.cx, rapid.cy-nh/2, COLORS.orange, 'a-purple', true);
+
+  // Register table
+  const tblY = 410;
+  const tblBg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  tblBg.setAttribute('x', 40); tblBg.setAttribute('y', tblY);
+  tblBg.setAttribute('width', cw - 80); tblBg.setAttribute('height', ch - tblY - 30);
+  tblBg.setAttribute('fill', 'var(--panel)'); tblBg.setAttribute('rx', '8');
+  tblBg.setAttribute('stroke', 'var(--border)');
+  SVG.appendChild(tblBg);
+
+  const tblTitle = document.createElementNS('http://www.w3.org/2000/svg','text');
+  tblTitle.setAttribute('x', 60); tblTitle.setAttribute('y', tblY + 22);
+  tblTitle.setAttribute('fill', 'var(--muted)'); tblTitle.setAttribute('font-size', '10');
+  tblTitle.setAttribute('font-weight', '600');
+  tblTitle.textContent = 'TABLA DE REGISTROS (Holding Registers — Float32 Big-endian)';
+  SVG.appendChild(tblTitle);
+
+  // Column headers
+  const cols = ['Registro', 'Tag', 'Variable', 'Rango', 'Unidad'];
+  const colX = [60, 140, 240, 340, 420, 500];
+  cols.forEach((c, i) => {
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', colX[i]); t.setAttribute('y', tblY + 42);
+    t.setAttribute('fill', 'var(--muted)'); t.setAttribute('font-size', '9');
+    t.textContent = c;
+    SVG.appendChild(t);
+  });
+
+  const tblData = [
+    ['HR 1-2', 'FT101', 'Caudal Alimentación', '80-120', 'm³/h', COLORS.accent],
+    ['HR 3-4', 'FT201', 'Caudal Permeado', '40-60', 'm³/h', COLORS.green],
+    ['HR 5-6', 'FT301', 'Caudal Concentrado', '30-50', 'm³/h', COLORS.red],
+    ['HR 7-8', 'PT101', 'Presión Alta HP', '55-65', 'bar', COLORS.orange],
+    ['HR 9-10', 'PT102', 'Presión Baja LP', '2-4', 'bar', COLORS.accent],
+    ['HR 11-12', 'PT201', 'Presión Permeado', '0.5-1.5', 'bar', COLORS.cyan],
+    ['HR 13-14', 'CT101', 'Conductividad Alim.', '45000-55000', 'µS/cm', COLORS.accent],
+    ['HR 15-16', 'CT201', 'Conductividad Perm.', '100-300', 'µS/cm', COLORS.green],
+    ['HR 17-18', 'TT101', 'Temperatura', '18-25', '°C', COLORS.cyan],
+    ['HR 19-20', 'AT101', 'pH Alimentación', '6.8-7.2', 'pH', COLORS.purple],
+    ['HR 21-22', 'AT201', 'pH Permeado', '6.5-7.0', 'pH', COLORS.cyan],
+    ['HR 23-24', 'KW101', 'Potencia Bomba HP', '45-55', 'kW', COLORS.orange],
+    ['HR 25-26', 'VL101', 'Apertura Válvula', '0-100', '%', COLORS.purple],
+    ['HR 27-28', 'RECOV', 'Tasa Recuperación', '40-55', '%', COLORS.green],
+    ['HR 29-30', 'REJEC', 'Tasa Rechazo Sal', '98-99.9', '%', COLORS.accent],
+    ['HR 31-32', 'PRODH', 'Producción Hora', 'acum.', 'm³', COLORS.cyan],
+    ['HR 33-34', 'PRODD', 'Producción Día', 'acum.', 'm³', COLORS.cyan],
+  ];
+  tblData.forEach((r, i) => {
+    const y = tblY + 64 + i * 22;
+    if (i % 2 === 0) {
+      const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      bg.setAttribute('x', 40); bg.setAttribute('y', y - 10);
+      bg.setAttribute('width', cw - 80); bg.setAttribute('height', 22);
+      bg.setAttribute('fill', 'rgba(255,255,255,0.02)');
+      SVG.appendChild(bg);
+    }
+    r.slice(0, 5).forEach((v, j) => {
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', colX[j]); t.setAttribute('y', y + 2);
+      t.setAttribute('fill', j === 1 ? r[5] : 'var(--text)');
+      t.setAttribute('font-size', '9');
+      t.setAttribute('font-weight', j <= 1 ? '600' : '400');
+      t.textContent = v;
+      SVG.appendChild(t);
+    });
+  });
+
+  selectNode('mb_hr');
+}
+
+function buildRO() {
+  const cw = W(), ch = H();
+  const title = document.createElementNS('http://www.w3.org/2000/svg','text');
+  title.setAttribute('x', cw/2); title.setAttribute('y', 28);
+  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', 'var(--muted)');
+  title.setAttribute('font-size', '11'); title.setAttribute('font-weight', '600');
+  title.textContent = 'PROCESO DE OSMOSIS INVERSA (RO)';
+  SVG.appendChild(title);
+
+  // Layout: horizontal flow
+  const y0 = 60, y1 = 140, y2 = 220, y3 = 300, y4 = 400;
+  const nw = 140, nh = 50;
+
+  createArrowhead(SVG, 'ra', COLORS.accent);
+  createArrowhead(SVG, 'rg', COLORS.green);
+  createArrowhead(SVG, 'ro', COLORS.orange);
+  createArrowhead(SVG, 'rr', COLORS.red);
+
+  const al = (x1,y1,x2,y2,c,aid,anim) => {
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke',c); l.setAttribute('stroke-width','2');
+    l.setAttribute('marker-end',`url(#${aid})`);
+    if (anim) { l.setAttribute('stroke-dasharray','8 4'); l.classList.add('flow-dot'); }
+    SVG.insertBefore(l, SVG.firstChild);
+  };
+
+  // Row 1: Intake
+  const intake = createNode(SVG, 20, y0, nw, nh, 'Captación', 'Agua de Mar', 'intake', COLORS.accent, {icon:'◈',iconSize:'14'});
+
+  // Row 2: LP Pump
+  const lp = createNode(SVG, cw/2 - 30 - nw - 40, y0+100, nw, nh, 'Bomba LP', '2-4 bar', 'lp_pump', COLORS.cyan, {icon:'⟐',iconSize:'14'});
+
+  // Row 3: HP Pump + Antiscalant
+  const hp = createNode(SVG, cw/2 - nw - 20, y0+200, nw, nh, 'Bomba HP', '55-65 bar · 50kW', 'hp_pump', COLORS.orange, {icon:'⟐',iconSize:'14'});
+  const ant = createNode(SVG, cw/2 + 20, y0+200, nw, nh, 'Antiscalant', 'Válvula 0-100%', 'antiscalant', COLORS.purple, {icon:'◆',iconSize:'14'});
+
+  // Row 4: Membranes
+  const mem = createNode(SVG, cw/2 - nw/2, y0+310, nw, nh, 'Membranas RO', 'Ósmosis Inversa', 'membranes', COLORS.green, {icon:'◇',iconSize:'16'});
+
+  // Row 5: Permeate + Concentrate + Alarms
+  const perm = createNode(SVG, 30, y0+420, nw, nh, 'Permeado', 'Agua Tratada', 'permeate', COLORS.green, {icon:'◈',iconSize:'14'});
+  const conc = createNode(SVG, cw/2 - 10, y0+420, nw, nh, 'Concentrado', 'Salmuera', 'concentrate', COLORS.red, {icon:'◈',iconSize:'14'});
+  const al1 = createNode(SVG, cw - nw - 20, y0+420, nw, nh, 'ALRM-1', 'Conductividad >400', 'alarm1', COLORS.red, {icon:'⚠',iconSize:'14'});
+  const al2 = createNode(SVG, cw - nw - 20, y0+360, nw, nh, 'ALRM-2', 'Presión >62 bar', 'alarm2', COLORS.red, {icon:'⚠',iconSize:'14'});
+
+  // Edges
+  al(intake.cx + nw/2, intake.cy, lp.cx - nw/2, lp.cy, COLORS.accent, 'ra', true);
+  al(lp.cx + nw/2, lp.cy, hp.cx - nw/2, hp.cy, COLORS.cyan, 'ro', true);
+  al(hp.cx + nw/2, hp.cy, mem.cx - nw/2, mem.cy, COLORS.orange, 'ra', true);
+  al(mem.cx - 30, mem.cy + nh/2, perm.cx + nw/2, perm.cy, COLORS.green, 'rg', true);
+  al(mem.cx + 30, mem.cy + nh/2, conc.cx - nw/2, conc.cy, COLORS.orange, 'rr', true);
+  al(perm.cx + nw/2, perm.cy - 20, al1.cx - nw/2, al1.cy, COLORS.red, 'rr', true);
+  al(hp.cx + nw/2 - 10, hp.cy - 20, al2.cx - nw/2, al2.cy, COLORS.red, 'rr', true);
+  // antiscalant
+  al(lp.cx + nw/2 + 10, lp.cy + 20, ant.cx - nw/2, ant.cy, COLORS.cyan, 'ra', false);
+  al(ant.cx + nw/2 - 10, ant.cy + 20, mem.cx - nw/2, mem.cy + 15, COLORS.purple, 'ra', false);
+
+  // Process labels
+  const lbl = (x, y, text, color) => {
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x); t.setAttribute('y', y);
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('fill', color||'var(--muted)');
+    t.setAttribute('font-size', '9');
+    t.textContent = text;
+    SVG.appendChild(t);
+  };
+  lbl(intake.cx + nw/2 + 40, intake.cy - 12, 'FT-101', COLORS.accent);
+  lbl(lp.cx + nw/2 + 30, lp.cy - 12, 'PT-102', COLORS.cyan);
+  lbl(hp.cx - nw/2 - 30, hp.cy - 12, 'PT-101', COLORS.orange);
+  lbl(mem.cx + nw/2 + 30, mem.cy - 12, 'RECOV', COLORS.green);
+  lbl(perm.cx + nw/2 + 30, perm.cy - 12, 'FT-201 / CT-201', COLORS.green);
+  lbl(conc.cx - nw/2 - 30, conc.cy - 12, 'FT-301', COLORS.red);
+
+  const st = document.createElementNS('http://www.w3.org/2000/svg','text');
+  st.setAttribute('x', 20); st.setAttribute('y', ch-20);
+  st.setAttribute('fill', 'var(--muted)'); st.setAttribute('font-size', '9');
+  st.textContent = '▲ Las alarmas se activan cuando CT-201 > 400 µS/cm (ALRM-1) o PT-101 > 62 bar (ALRM-2)';
+  SVG.appendChild(st);
+
+  selectNode('intake');
+}
+
+function buildServices() {
+  const cw = W(), ch = H();
+  const title = document.createElementNS('http://www.w3.org/2000/svg','text');
+  title.setAttribute('x', cw/2); title.setAttribute('y', 28);
+  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', 'var(--muted)');
+  title.setAttribute('font-size', '11'); title.setAttribute('font-weight', '600');
+  title.textContent = 'INFRAESTRUCTURA DE SERVICIOS';
+  SVG.appendChild(title);
+
+  createArrowhead(SVG, 'sa', COLORS.accent);
+  createArrowhead(SVG, 'sg', COLORS.green);
+  createArrowhead(SVG, 'so', COLORS.orange);
+  createArrowhead(SVG, 'sp', COLORS.purple);
+
+  const nw = 160, nh = 50;
+  const cols = 3;
+  const gapX = 30, gapY = 80;
+  const totalW = cols * nw + (cols - 1) * gapX;
+  const startX = (cw - totalW) / 2;
+
+  const services = [
+    { id: 'svc_sim', name: 'desaladora-sim', sub: ':502 · Python', color: COLORS.cyan, row: 0, col: 0 },
+    { id: 'svc_server', name: 'scada-server', sub: ':10000 · .NET 8', color: COLORS.orange, row: 0, col: 1 },
+    { id: 'svc_comm', name: 'scada-comm', sub: 'Modbus TCP', color: COLORS.accent, row: 0, col: 2 },
+    { id: 'svc_web', name: 'scada-web', sub: ':5000 · ASP.NET', color: COLORS.green, row: 1, col: 0 },
+    { id: 'svc_dash', name: 'FastAPI Dash', sub: ':8000 · Python', color: COLORS.purple, row: 1, col: 1 },
+  ];
+
+  const nodes = services.map(s => {
+    const x = startX + s.col * (nw + gapX);
+    const y = 60 + s.row * (nh + gapY);
+    return createNode(SVG, x, y, nw, nh, s.name, s.sub, s.id, s.color, {icon:'⚙',iconSize:'16'});
+  });
+
+  // Dependencies
+  // server ← comm (dependency)
+  al(svc_sim => {
+    // These are done below with the al function
+  });
+
+  const al = (x1,y1,x2,y2,c,aid,anim,dashed) => {
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke',c); l.setAttribute('stroke-width','2');
+    if (aid) l.setAttribute('marker-end',`url(#${aid})`);
+    if (anim) { l.setAttribute('stroke-dasharray','8 4'); l.classList.add('flow-dot'); }
+    if (dashed) { const d = l.getAttribute('stroke-dasharray'); l.setAttribute('stroke-dasharray', (d||'') + (d ? ',' : '') + '6 3'); l.setAttribute('stroke-dasharray', '6 3'); }
+    SVG.insertBefore(l, SVG.firstChild);
+  };
+
+  // Dependencies: dashed = depends on
+  // Comm depends on server
+  const sv = nodes[1]; // server
+  const co = nodes[2]; // comm
+  const we = nodes[3]; // web
+  const da = nodes[4]; // dash
+  const si = nodes[0]; // sim
+
+  // server → comm (depends on)
+  const depLine = (from, to, color) => {
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1', from.cx); l.setAttribute('y1', from.cy - nh/2);
+    l.setAttribute('x2', to.cx); l.setAttribute('y2', to.cy + nh/2);
+    l.setAttribute('stroke', color); l.setAttribute('stroke-width', '1.5');
+    l.setAttribute('stroke-dasharray', '4 3');
+    l.setAttribute('marker-end', `url(#sa)`);
+    SVG.insertBefore(l, SVG.firstChild);
+  };
+
+  // Server is the hub
+  depLine(sv, co, COLORS.accent);
+  depLine(sv, we, COLORS.green);
+  // Comm depends on sim
+  depLine(si, co, COLORS.cyan);
+  // Dash depends on sim
+  depLine(si, da, COLORS.purple);
+
+  // Legend for dependencies
+  const lgx = startX, lgy = ch - 80;
+  const lg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  lg.setAttribute('x', lgx); lg.setAttribute('y', lgy);
+  lg.setAttribute('width', 200); lg.setAttribute('height', 60);
+  lg.setAttribute('fill', 'var(--panel)'); lg.setAttribute('stroke', 'var(--border)');
+  lg.setAttribute('rx', '6');
+  SVG.appendChild(lg);
+  const li1 = document.createElementNS('http://www.w3.org/2000/svg','line');
+  li1.setAttribute('x1', lgx+15); li1.setAttribute('y1', lgy+22);
+  li1.setAttribute('x2', lgx+45); li1.setAttribute('y2', lgy+22);
+  li1.setAttribute('stroke', COLORS.muted); li1.setAttribute('stroke-width', '1.5');
+  li1.setAttribute('stroke-dasharray', '4 3');
+  li1.setAttribute('marker-end', 'url(#sa)');
+  SVG.appendChild(li1);
+  const t1 = document.createElementNS('http://www.w3.org/2000/svg','text');
+  t1.setAttribute('x', lgx+55); t1.setAttribute('y', lgy+26);
+  t1.setAttribute('fill', 'var(--text)'); t1.setAttribute('font-size', '10');
+  t1.textContent = 'Dependencia (A necesita B)';
+  SVG.appendChild(t1);
+
+  const li2 = document.createElementNS('http://www.w3.org/2000/svg','line');
+  li2.setAttribute('x1', lgx+15); li2.setAttribute('y1', lgy+46);
+  li2.setAttribute('x2', lgx+45); li2.setAttribute('y2', lgy+46);
+  li2.setAttribute('stroke', COLORS.green); li2.setAttribute('stroke-width', '2');
+  li2.setAttribute('stroke-dasharray', '8 4');
+  li2.classList.add('flow-dot');
+  li2.setAttribute('marker-end', 'url(#sg)');
+  SVG.appendChild(li2);
+  const t2 = document.createElementNS('http://www.w3.org/2000/svg','text');
+  t2.setAttribute('x', lgx+55); t2.setAttribute('y', lgy+50);
+  t2.setAttribute('fill', 'var(--text)'); t2.setAttribute('font-size', '10');
+  t2.textContent = 'Flujo de datos (polling 1s)';
+  SVG.appendChild(t2);
+
+  selectNode('svc_sim');
+}
+
+// ─── SWITCH DIAGRAM ───
+function switchDiagram(id) {
+  clearSVG();
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.querySelector(`[data-diagram="${id}"]`).classList.add('active');
+
+  const meta = DIAGRAM_META[id];
+  document.getElementById('diagram-icon').textContent = meta.icon;
+  document.getElementById('toolbar-title').innerHTML =
+    `${meta.icon} ${meta.title} <span class="sub">${meta.sub}</span>`;
+
+  // Clear sidebar
+  document.getElementById('side-type').textContent = 'NODO';
+  document.getElementById('side-title').textContent = 'Selecciona un nodo';
+  document.getElementById('side-body').innerHTML =
+    '<p style="color:var(--muted);font-size:0.85rem">Haz clic en cualquier componente del diagrama para ver sus detalles técnicos.</p>';
+
+  switch (id) {
+    case 'arq': buildArquitectura(); break;
+    case 'data': buildFlujoDatos(); break;
+    case 'modbus': buildModbus(); break;
+    case 'ro': buildRO(); break;
+    case 'services': buildServices(); break;
+  }
+}
+
+// ─── TOGGLE ───
+function toggleNav() {
+  document.getElementById('nav').classList.toggle('collapsed');
+}
+
+// ─── RESIZE ───
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    const active = document.querySelector('.nav-item.active');
+    if (active) switchDiagram(active.dataset.diagram);
+  }, 200);
+});
+
+// ─── INIT ───
+switchDiagram('arq');
+</script>
+</body>
+</html>
