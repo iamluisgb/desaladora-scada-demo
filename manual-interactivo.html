@@ -526,7 +526,7 @@ function buildArquitectura() {
     l.setAttribute('stroke',color); l.setAttribute('stroke-width','2');
     l.setAttribute('marker-end',`url(#${id})`);
     if (anim) { l.setAttribute('stroke-dasharray','8 4'); l.classList.add('flow-dot'); }
-    SVG.insertBefore(l, SVG.firstChild);
+    SVG.appendChild(l);
   };
 
   arrowLine(sim.cx, sim.cy + nh/2, comm.cx, comm.cy - nh/2, COLORS.cyan, 'arrow-cyan', true);
@@ -622,7 +622,7 @@ function buildFlujoDatos() {
     if (aid) l.setAttribute('marker-end',`url(#${aid})`);
     if (anim) { l.setAttribute('stroke-dasharray','8 4'); l.classList.add('flow-dot'); }
     if (style) Object.entries(style).forEach(([k,v])=>l.setAttribute(k,v));
-    SVG.insertBefore(l, SVG.firstChild);
+    SVG.appendChild(l);
   };
 
   al(sensor.cx, sensor.cy+nh/2, mb.cx+30, mb.cy-nh/2, COLORS.cyan, 'arr-cyan', true);
@@ -687,7 +687,7 @@ function buildModbus() {
     l.setAttribute('stroke',c); l.setAttribute('stroke-width','2');
     l.setAttribute('marker-end',`url(#${aid})`);
     if (anim) { l.setAttribute('stroke-dasharray','8 4'); l.classList.add('flow-dot'); }
-    SVG.insertBefore(l, SVG.firstChild);
+    SVG.appendChild(l);
   };
 
   al(sim.cx-20, sim.cy+nh/2, hr.cx+30, hr.cy-nh/2, COLORS.cyan, 'a-blue', true);
@@ -788,7 +788,7 @@ function buildRO() {
     l.setAttribute('stroke',c); l.setAttribute('stroke-width','2');
     l.setAttribute('marker-end',`url(#${aid})`);
     if (anim) { l.setAttribute('stroke-dasharray','8 4'); l.classList.add('flow-dot'); }
-    SVG.insertBefore(l, SVG.firstChild);
+    SVG.appendChild(l);
   };
 
   // Row 1: Intake
@@ -896,7 +896,7 @@ function buildServices() {
     if (aid) l.setAttribute('marker-end',`url(#${aid})`);
     if (anim) { l.setAttribute('stroke-dasharray','8 4'); l.classList.add('flow-dot'); }
     if (dashed) { const d = l.getAttribute('stroke-dasharray'); l.setAttribute('stroke-dasharray', (d||'') + (d ? ',' : '') + '6 3'); l.setAttribute('stroke-dasharray', '6 3'); }
-    SVG.insertBefore(l, SVG.firstChild);
+    SVG.appendChild(l);
   };
 
   // Dependencies: dashed = depends on
@@ -915,7 +915,7 @@ function buildServices() {
     l.setAttribute('stroke', color); l.setAttribute('stroke-width', '1.5');
     l.setAttribute('stroke-dasharray', '4 3');
     l.setAttribute('marker-end', `url(#sa)`);
-    SVG.insertBefore(l, SVG.firstChild);
+    SVG.appendChild(l);
   };
 
   // Server is the hub
