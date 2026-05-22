@@ -4,6 +4,7 @@ API REST para exponer datos de la planta desaladora.
 Lee los registros Modbus del simulador y los devuelve como JSON.
 """
 
+import json
 import os
 import struct
 import time
@@ -11,6 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 from pymodbus.client import ModbusTcpClient
 
 app = FastAPI(title="Desaladora RO - API")
@@ -18,6 +20,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 MODBUS_HOST = os.getenv("MODBUS_HOST", "localhost")
 MODBUS_PORT = int(os.getenv("MODBUS_PORT", "502"))
+OVERRIDE_FILE = os.getenv("OVERRIDE_FILE", "/tmp/override.json")
 
 TAG_DEFS = [
     ("FT-101", "Caudal Alimentación",    "m³/h",  1),
@@ -46,35 +49,31 @@ COIL_DEFS = [
     ("ALRM-2", "Alarma Presión Alta"),
 ]
 
-# History buffer (last 120 samples = 2 min at 1s interval)
+# History buffer (last 300 samples = 5 min at 1s interval)
 history: list[dict] = []
 MAX_HISTORY = 300
 
 
-def read_modbus():
-    """Read all tags from the Modbus simulator."""
-    client = ModbusTcpClient(MODBUS_HOST, port=MODBUS_PORT)
-    client.connect()
+class WriteCommand(BaseModel):
+    tag: str
+    value: bool | float | None = None
 
-    # Analog tags (holding registers, float32 big-endian)
-    result = client.read_holding_registers(address=1, count=34)
-    analogs = {}
-    if not result.isError():
-        for tag, desc, unit, addr in TAG_DEFS:
-            idx = addr - 1
-            raw = struct.pack('>HH', result.registers[idx], result.registers[idx + 1])
-            val = round(struct.unpack('>f', raw)[0], 2)
-            analogs[tag] = {"value": val, "desc": desc, "unit": unit}
 
-    # Digital tags (coils)
-    coils_result = client.read_coils(address=1, count=4)
-    digitals = {}
-    if not coils_result.isError():
-        for i, (tag, desc) in enumerate(COIL_DEFS):
-            digitals[tag] = {"value": bool(coils_result.bits[i]), "desc": desc}
+@app.post("/api/write")
+def write_tag(cmd: WriteCommand):
+    """Write a tag value to the simulator via override file."""
+    overrides = {}
+    try:
+        with open(OVERRIDE_FILE) as f:
+            overrides = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
 
-    client.close()
-    return analogs, digitals
+    overrides[cmd.tag] = cmd.value
+    with open(OVERRIDE_FILE, "w") as f:
+        json.dump(overrides, f)
+
+    return {"status": "ok", "tag": cmd.tag, "value": cmd.value}
 
 
 @app.get("/api/live")

@@ -30,6 +30,7 @@ Mapeo de registros (1-based, como requiere pymodbus 3.x):
     4: ALRM-2  Alarma presión alta
 """
 
+import json
 import os
 import struct
 import math
@@ -87,6 +88,15 @@ def pack_analog_tags(tags: dict) -> list[int]:
 # Process simulation
 # ─────────────────────────────────────────────
 
+OVERRIDE_FILE = "/tmp/override.json"
+
+def load_overrides() -> dict:
+    try:
+        with open(OVERRIDE_FILE) as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
 class DesaladoProcess:
     def __init__(self):
         self.t = 0.0
@@ -102,7 +112,7 @@ class DesaladoProcess:
     def _sin(self, period_s, amp, phase=0.0):
         return amp * math.sin(2 * math.pi * (self.t + phase) / period_s)
 
-    def tick(self, dt: float) -> dict:
+    def tick(self, dt: float, overrides: dict = None) -> dict:
         self.t += dt
 
         drift = self._sin(7200, 1.0)
@@ -145,6 +155,18 @@ class DesaladoProcess:
         sp102  = 1
         alrm1  = 1 if ct201 > 400 else 0
         alrm2  = 1 if pt101 > 67  else 0
+
+        # Apply user overrides from file (set via dashboard)
+        ovr = overrides or {}
+        if 'SP101' in ovr:
+            sp101 = 1 if ovr['SP101'] else 0
+        if 'SP102' in ovr:
+            sp102 = 1 if ovr['SP102'] else 0
+        if 'VL101' in ovr:
+            vl101 = max(0, min(100, float(ovr['VL101'])))
+        if 'FORCE_ALARM' in ovr and ovr['FORCE_ALARM']:
+            ct201 = 500.0
+            alrm1 = 1
 
         return {
             'FT101': ft101, 'FT201': ft201, 'FT301': ft301,
@@ -207,7 +229,8 @@ async def modbus_action(
 async def update_loop(process: DesaladoProcess):
     global HR_REGS, COIL_VALS
     while True:
-        tags = process.tick(1.0)
+        overrides = load_overrides()
+        tags = process.tick(1.0, overrides)
         HR_REGS = pack_analog_tags(tags)
         COIL_VALS = [
             bool(tags['SP101']),

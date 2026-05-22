@@ -239,6 +239,18 @@ canvas { width: 100% !important; height: 100% !important; }
 .gauge-label .gunit { font-size: 0.7rem; color: var(--muted); }
 .gauge-label .gtag { font-size: 0.65rem; color: var(--muted); margin-top: 2px; }
 
+/* ─── Controls ─── */
+.ctrl-btn {
+  padding: 6px 18px; border-radius: 6px; border: 1px solid var(--border);
+  font-size: 0.8rem; font-weight: 600; cursor: pointer;
+  background: var(--panel); color: var(--text); transition: all 0.2s;
+}
+.ctrl-btn:hover { filter: brightness(1.2); }
+.ctrl-on { border-color: var(--green); color: var(--green); }
+.ctrl-off { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.1); }
+.ctrl-alarm { border-color: var(--red); color: var(--red); animation: pulse-alarm 1.5s infinite; }
+@keyframes pulse-alarm { 50% { box-shadow: 0 0 8px rgba(239,68,68,0.3); } }
+
 @media (max-width: 900px) {
   .row-top { grid-template-columns: repeat(2, 1fr); }
   .row-mid, .row-bot { grid-template-columns: 1fr; }
@@ -447,6 +459,34 @@ canvas { width: 100% !important; height: 100% !important; }
           </thead>
           <tbody id="tag-table"></tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls row -->
+  <div class="row-bot">
+    <div class="card">
+      <div class="card-title"><span class="icon">&#9881;</span> Control de Planta</div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;padding:8px 0">
+        <div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px">Bomba HP</div>
+          <button id="btn-sp101" class="ctrl-btn ctrl-on" onclick="toggleWrite('SP101')">ON</button>
+        </div>
+        <div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px">Bomba LP</div>
+          <button id="btn-sp102" class="ctrl-btn ctrl-on" onclick="toggleWrite('SP102')">ON</button>
+        </div>
+        <div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px">Válvula Antiscalant</div>
+          <input type="range" id="slider-vl101" min="0" max="100" value="65"
+                 oninput="sliderWrite('VL101', this.value)"
+                 style="width:140px;accent-color:var(--accent);vertical-align:middle">
+          <span id="val-vl101" style="font-size:0.85rem;font-weight:600;margin-left:8px;color:var(--accent)">65%</span>
+        </div>
+        <div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px">Simular fallo</div>
+          <button class="ctrl-btn ctrl-alarm" onclick="triggerAlarm()">&#9888; Fallo Membrana</button>
+        </div>
       </div>
     </div>
   </div>
@@ -689,6 +729,60 @@ async function poll() {
 
 setInterval(poll, 1000);
 poll();
+
+// ─── Write Commands ───
+async function sendWrite(tag, value) {
+  try {
+    await fetch('/api/write', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({tag, value}),
+    });
+  } catch (e) { console.error('Write failed', e); }
+}
+
+function toggleWrite(tag) {
+  const btn = document.getElementById('btn-' + tag.toLowerCase());
+  const isOn = btn.classList.contains('ctrl-on');
+  const newVal = !isOn;
+  btn.textContent = newVal ? 'ON' : 'OFF';
+  btn.className = 'ctrl-btn ' + (newVal ? 'ctrl-on' : 'ctrl-off');
+  sendWrite(tag, newVal);
+}
+
+function sliderWrite(tag, value) {
+  document.getElementById('val-' + tag.toLowerCase()).textContent = value + '%';
+  sendWrite(tag, parseFloat(value));
+}
+
+function triggerAlarm() {
+  sendWrite('FORCE_ALARM', true);
+  const btn = event.target;
+  btn.textContent = '⚠ FALLO ACTIVO';
+  btn.style.background = 'rgba(239,68,68,0.2)';
+  setTimeout(() => {
+    sendWrite('FORCE_ALARM', false);
+    btn.textContent = '⚠ Fallo Membrana';
+    btn.style.background = '';
+  }, 10000);
+}
+
+// Update button states from live data
+const origUpdate = updateDashboard;
+updateDashboard = function(data) {
+  origUpdate(data);
+  const d = data.digitals;
+  if (d['SP-101']) {
+    const btn = document.getElementById('btn-sp101');
+    btn.textContent = d['SP-101'].value ? 'ON' : 'OFF';
+    btn.className = 'ctrl-btn ' + (d['SP-101'].value ? 'ctrl-on' : 'ctrl-off');
+  }
+  if (d['SP-102']) {
+    const btn = document.getElementById('btn-sp102');
+    btn.textContent = d['SP-102'].value ? 'ON' : 'OFF';
+    btn.className = 'ctrl-btn ' + (d['SP-102'].value ? 'ctrl-on' : 'ctrl-off');
+  }
+};
 </script>
 
 </body>
