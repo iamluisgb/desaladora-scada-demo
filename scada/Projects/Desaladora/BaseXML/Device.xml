@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfDevice xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Device>
+    <DeviceNum>1</DeviceNum>
+    <Name>Simulador Desaladora</Name>
+    <Code>DESAL</Code>
+    <DevTypeID>214</DevTypeID>
+    <NumAddress>1</NumAddress>
+    <StrAddress>localhost:502</StrAddress>
+    <CommLineNum>1</CommLineNum>
+    <Descr>Simulador Modbus TCP planta osmosis inversa</Descr>
+  </Device>
+</ArrayOfDevice>

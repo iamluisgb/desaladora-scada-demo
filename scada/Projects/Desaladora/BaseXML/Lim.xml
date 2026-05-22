@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLim xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- Límite conductividad permeado: alarma >400 µS/cm -->
+  <Lim>
+    <LimID>1</LimID>
+    <Name>Conductividad permeado</Name>
+    <Code>LIM_CT201</Code>
+    <IsBoundToCnl>false</IsBoundToCnl>
+    <LoLo xsi:nil="true" />
+    <Lo xsi:nil="true" />
+    <Hi>350</Hi>
+    <HiHi>400</HiHi>
+    <Deadband>10</Deadband>
+  </Lim>
+  <!-- Límite presión HP: alarma >68 bar -->
+  <Lim>
+    <LimID>2</LimID>
+    <Name>Presión HP</Name>
+    <Code>LIM_PT101</Code>
+    <IsBoundToCnl>false</IsBoundToCnl>
+    <LoLo>50</LoLo>
+    <Lo>52</Lo>
+    <Hi>65</Hi>
+    <HiHi>68</HiHi>
+    <Deadband>0.5</Deadband>
+  </Lim>
+  <!-- Límite caudal alimentación -->
+  <Lim>
+    <LimID>3</LimID>
+    <Name>Caudal alimentación</Name>
+    <Code>LIM_FT101</Code>
+    <IsBoundToCnl>false</IsBoundToCnl>
+    <LoLo>70</LoLo>
+    <Lo>75</Lo>
+    <Hi>125</Hi>
+    <HiHi>130</HiHi>
+    <Deadband>2</Deadband>
+  </Lim>
+  <!-- Límite tasa recuperación -->
+  <Lim>
+    <LimID>4</LimID>
+    <Name>Tasa de recuperación</Name>
+    <Code>LIM_RECOV</Code>
+    <IsBoundToCnl>false</IsBoundToCnl>
+    <LoLo>35</LoLo>
+    <Lo>38</Lo>
+    <Hi>58</Hi>
+    <HiHi>62</HiHi>
+    <Deadband>1</Deadband>
+  </Lim>
+</ArrayOfLim>

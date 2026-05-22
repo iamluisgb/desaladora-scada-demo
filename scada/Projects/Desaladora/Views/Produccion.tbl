@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TableView>
+  <TableOptions>
+    <UseDefault>false</UseDefault>
+    <ArchiveCode>Min</ArchiveCode>
+    <Period>60</Period>
+  </TableOptions>
+  <TableItems>
+    <Item>Producción Acumulada</Item>
+    <Item cnlNum="118" autoText="true" />
+    <Item cnlNum="119" autoText="true" />
+    <Item />
+    <Item>Recuperación y Rechazo (%)</Item>
+    <Item cnlNum="116" autoText="true" />
+    <Item cnlNum="117" autoText="true" />
+    <Item />
+    <Item>Caudal Alimentación (m³/h)</Item>
+    <Item cnlNum="101" autoText="true" />
+    <Item />
+    <Item>Caudal Permeado (m³/h)</Item>
+    <Item cnlNum="102" autoText="true" />
+    <Item />
+    <Item>Caudal Concentrado (m³/h)</Item>
+    <Item cnlNum="103" autoText="true" />
+    <Item />
+    <Item>Potencia (kW)</Item>
+    <Item cnlNum="112" autoText="true" />
+    <Item />
+    <Item>Válvula Antiscalant (%)</Item>
+    <Item cnlNum="115" autoText="true" />
+  </TableItems>
+</TableView>

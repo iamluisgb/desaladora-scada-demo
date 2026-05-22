@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfView xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <View>
+    <ViewID>1</ViewID>
+    <Path>Desaladora\</Path>
+    <ViewTypeID xsi:nil="true" />
+    <Title>Planta Desaladora</Title>
+    <Ord>1</Ord>
+    <Hidden>false</Hidden>
+    <ObjNum>1</ObjNum>
+  </View>
+  <View>
+    <ViewID>2</ViewID>
+    <Path>Desaladora\General.tbl</Path>
+    <ViewTypeID xsi:nil="true" />
+    <Title>Vista General</Title>
+    <Ord>1</Ord>
+    <Hidden>false</Hidden>
+    <ObjNum>1</ObjNum>
+  </View>
+  <View>
+    <ViewID>3</ViewID>
+    <Path>Desaladora\Tendencias.tbl</Path>
+    <ViewTypeID xsi:nil="true" />
+    <Title>Tendencias 24h</Title>
+    <Ord>2</Ord>
+    <Hidden>false</Hidden>
+    <ObjNum>1</ObjNum>
+  </View>
+  <View>
+    <ViewID>4</ViewID>
+    <Path>Desaladora\Alarmas.tbl</Path>
+    <ViewTypeID xsi:nil="true" />
+    <Title>Alarmas y Estado</Title>
+    <Ord>3</Ord>
+    <Hidden>false</Hidden>
+    <ObjNum>1</ObjNum>
+  </View>
+  <View>
+    <ViewID>5</ViewID>
+    <Path>Desaladora\Produccion.tbl</Path>
+    <ViewTypeID xsi:nil="true" />
+    <Title>Producción y KPIs</Title>
+    <Ord>4</Ord>
+    <Hidden>false</Hidden>
+    <ObjNum>1</ObjNum>
+  </View>
+</ArrayOfView>

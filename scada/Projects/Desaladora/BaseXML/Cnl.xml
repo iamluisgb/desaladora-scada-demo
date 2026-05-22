@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfCnl xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- ============================================================ -->
+  <!-- CAUDALES -->
+  <!-- ============================================================ -->
+  <Cnl>
+    <CnlNum>101</CnlNum><Active>true</Active>
+    <Name>FT-101 Caudal Alimentación</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>FT101</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>3</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>101</UnitID>
+    <LimID>3</LimID>
+    <ArchiveMask>7</ArchiveMask><EventMask>33</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>102</CnlNum><Active>true</Active>
+    <Name>FT-201 Caudal Permeado</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>FT201</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>3</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>101</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>103</CnlNum><Active>true</Active>
+    <Name>FT-301 Caudal Concentrado</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>FT301</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>3</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>101</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <!-- ============================================================ -->
+  <!-- PRESIONES -->
+  <!-- ============================================================ -->
+  <Cnl>
+    <CnlNum>104</CnlNum><Active>true</Active>
+    <Name>PT-101 Presión Alta (HP)</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>PT101</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>3</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>102</UnitID>
+    <LimID>2</LimID>
+    <ArchiveMask>7</ArchiveMask><EventMask>33</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>105</CnlNum><Active>true</Active>
+    <Name>PT-102 Presión Baja Entrada (LP)</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>PT102</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>3</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>102</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>106</CnlNum><Active>true</Active>
+    <Name>PT-201 Presión Permeado</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>PT201</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>3</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>102</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <!-- ============================================================ -->
+  <!-- CALIDAD DE AGUA -->
+  <!-- ============================================================ -->
+  <Cnl>
+    <CnlNum>107</CnlNum><Active>true</Active>
+    <Name>CT-101 Conductividad Alimentación</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>CT101</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>2</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>103</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>108</CnlNum><Active>true</Active>
+    <Name>CT-201 Conductividad Permeado</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>CT201</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>2</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>103</UnitID>
+    <LimID>1</LimID>
+    <ArchiveMask>7</ArchiveMask><EventMask>33</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>109</CnlNum><Active>true</Active>
+    <Name>TT-101 Temperatura Agua</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>TT101</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>3</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>104</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>110</CnlNum><Active>true</Active>
+    <Name>AT-101 pH Alimentación</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>AT101</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>4</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>105</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>111</CnlNum><Active>true</Active>
+    <Name>AT-201 pH Permeado</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>AT201</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>4</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>105</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <!-- ============================================================ -->
+  <!-- ENERGÍA Y EQUIPOS -->
+  <!-- ============================================================ -->
+  <Cnl>
+    <CnlNum>112</CnlNum><Active>true</Active>
+    <Name>KW-101 Potencia Bomba HP</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>KW101</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>3</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>106</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>113</CnlNum><Active>true</Active>
+    <Name>SP-101 Estado Bomba HP</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>SP101</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>21</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID xsi:nil="true" />
+    <LimID xsi:nil="true" />
+    <ArchiveMask>3</ArchiveMask><EventMask>37</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>114</CnlNum><Active>true</Active>
+    <Name>SP-102 Estado Bomba Baja Presión</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>SP102</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>21</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID xsi:nil="true" />
+    <LimID xsi:nil="true" />
+    <ArchiveMask>3</ArchiveMask><EventMask>37</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>115</CnlNum><Active>true</Active>
+    <Name>VL-101 Apertura Válvula Antiscalant</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>VL101</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>3</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>107</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <!-- ============================================================ -->
+  <!-- EFICIENCIA Y PRODUCCIÓN -->
+  <!-- ============================================================ -->
+  <Cnl>
+    <CnlNum>116</CnlNum><Active>true</Active>
+    <Name>RECOV Tasa de Recuperación</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>RECOV</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>4</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>107</UnitID>
+    <LimID>4</LimID>
+    <ArchiveMask>7</ArchiveMask><EventMask>33</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>117</CnlNum><Active>true</Active>
+    <Name>REJEC Tasa de Rechazo de Sal</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>REJEC</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>4</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>107</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>118</CnlNum><Active>true</Active>
+    <Name>PROD-H Producción Acumulada Hora</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>PRODH</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>2</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>108</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>119</CnlNum><Active>true</Active>
+    <Name>PROD-D Producción Acumulada Día</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>PRODD</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>2</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID>108</UnitID>
+    <LimID xsi:nil="true" />
+    <ArchiveMask>7</ArchiveMask><EventMask>1</EventMask>
+  </Cnl>
+  <!-- ============================================================ -->
+  <!-- ALARMAS -->
+  <!-- ============================================================ -->
+  <Cnl>
+    <CnlNum>120</CnlNum><Active>true</Active>
+    <Name>ALRM-1 Alarma Conductividad Alta</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>ALRM1</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>21</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID xsi:nil="true" />
+    <LimID xsi:nil="true" />
+    <ArchiveMask>3</ArchiveMask><EventMask>53</EventMask>
+  </Cnl>
+  <Cnl>
+    <CnlNum>121</CnlNum><Active>true</Active>
+    <Name>ALRM-2 Alarma Presión Alta</Name>
+    <DataTypeID xsi:nil="true" /><DataLen xsi:nil="true" />
+    <CnlTypeID>1</CnlTypeID>
+    <ObjNum>1</ObjNum><DeviceNum>1</DeviceNum>
+    <TagNum xsi:nil="true" /><TagCode>ALRM2</TagCode>
+    <FormulaEnabled>false</FormulaEnabled>
+    <FormatID>21</FormatID>
+    <QuantityID xsi:nil="true" /><UnitID xsi:nil="true" />
+    <LimID xsi:nil="true" />
+    <ArchiveMask>3</ArchiveMask><EventMask>53</EventMask>
+  </Cnl>
+</ArrayOfCnl>

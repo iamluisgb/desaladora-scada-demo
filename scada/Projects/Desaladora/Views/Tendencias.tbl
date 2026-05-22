@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TableView>
+  <TableOptions>
+    <UseDefault>false</UseDefault>
+    <ArchiveCode>Min</ArchiveCode>
+    <Period>1440</Period>
+  </TableOptions>
+  <TableItems>
+    <Item>Caudales y Presiones (24h)</Item>
+    <Item cnlNum="101" autoText="true" />
+    <Item cnlNum="102" autoText="true" />
+    <Item cnlNum="103" autoText="true" />
+    <Item cnlNum="104" autoText="true" />
+    <Item />
+    <Item>Calidad y Eficiencia (24h)</Item>
+    <Item cnlNum="107" autoText="true" />
+    <Item cnlNum="108" autoText="true" />
+    <Item cnlNum="116" autoText="true" />
+    <Item cnlNum="117" autoText="true" />
+    <Item />
+    <Item>Producción (24h)</Item>
+    <Item cnlNum="118" autoText="true" />
+    <Item cnlNum="119" autoText="true" />
+  </TableItems>
+</TableView>

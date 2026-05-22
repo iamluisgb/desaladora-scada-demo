@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TableView>
+  <TableOptions>
+    <UseDefault>false</UseDefault>
+    <ArchiveCode>Min</ArchiveCode>
+    <Period>60</Period>
+  </TableOptions>
+  <TableItems>
+    <Item>Alarmas Activas</Item>
+    <Item cnlNum="120" autoText="true" />
+    <Item cnlNum="121" autoText="true" />
+    <Item />
+    <Item>Conductividad (µS/cm)</Item>
+    <Item cnlNum="107" autoText="true" />
+    <Item cnlNum="108" autoText="true" />
+    <Item />
+    <Item>Presión (bar)</Item>
+    <Item cnlNum="104" autoText="true" />
+    <Item cnlNum="105" autoText="true" />
+    <Item cnlNum="106" autoText="true" />
+    <Item />
+    <Item>Estado Equipos</Item>
+    <Item cnlNum="113" autoText="true" />
+    <Item cnlNum="114" autoText="true" />
+    <Item />
+    <Item>pH</Item>
+    <Item cnlNum="110" autoText="true" />
+    <Item cnlNum="111" autoText="true" />
+    <Item />
+    <Item>Temperatura (°C)</Item>
+    <Item cnlNum="109" autoText="true" />
+  </TableItems>
+</TableView>

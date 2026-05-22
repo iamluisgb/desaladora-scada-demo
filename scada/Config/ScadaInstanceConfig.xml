@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScadaInstanceConfig>
+  <Culture></Culture>
+  <LogDir></LogDir>
+  <DefaultConnection></DefaultConnection>
+  <ActiveStorage>FileStorage</ActiveStorage>
+  <Storages>
+    <Storage active="true" code="FileStorage" name="File Storage" driver="FileStorage">
+      <Option name="ViewDir" value="/opt/scada/Views" />
+    </Storage>
+  </Storages>
+  <Connections />
+</ScadaInstanceConfig>

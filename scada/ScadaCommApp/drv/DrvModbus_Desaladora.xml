@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DeviceTemplate>
+  <Options>
+    <ZeroAddr>false</ZeroAddr>
+    <DecAddr>true</DecAddr>
+    <DefByteOrder2 />
+    <DefByteOrder4>BA DC</DefByteOrder4>
+    <DefByteOrder8 />
+  </Options>
+  <ElemGroups>
+    <!-- Analog variables: float32 (2 registers each), HoldingRegisters -->
+    <!-- ZeroAddr=false: address 1 = first Modbus register (PDU offset 0) -->
+    <ElemGroup active="true" dataBlock="HoldingRegisters" address="1" name="Caudales y Presiones">
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="FT101" name="FT-101 Caudal Alimentación" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="FT201" name="FT-201 Caudal Permeado" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="FT301" name="FT-301 Caudal Concentrado" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="PT101" name="PT-101 Presión HP" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="PT102" name="PT-102 Presión LP" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="PT201" name="PT-201 Presión Permeado" />
+    </ElemGroup>
+    <ElemGroup active="true" dataBlock="HoldingRegisters" address="13" name="Calidad de Agua">
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="CT101" name="CT-101 Conductividad Alimentación" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="CT201" name="CT-201 Conductividad Permeado" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="TT101" name="TT-101 Temperatura" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="AT101" name="AT-101 pH Alimentación" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="AT201" name="AT-201 pH Permeado" />
+    </ElemGroup>
+    <ElemGroup active="true" dataBlock="HoldingRegisters" address="23" name="Energía y Eficiencia">
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="KW101" name="KW-101 Potencia Bomba HP" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="VL101" name="VL-101 Apertura Válvula" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="RECOV" name="RECOV Tasa Recuperación" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="REJEC" name="REJEC Tasa Rechazo Sal" />
+    </ElemGroup>
+    <ElemGroup active="true" dataBlock="HoldingRegisters" address="31" name="Producción">
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="PRODH" name="PROD-H Producción Hora" />
+      <Elem type="float" readOnly="true" isBitMask="false" tagCode="PRODD" name="PROD-D Producción Día" />
+    </ElemGroup>
+    <!-- Digital variables: Coils (1-based, ZeroAddr=false) -->
+    <ElemGroup active="true" dataBlock="Coils" address="1" name="Estado Equipos y Alarmas">
+      <Elem readOnly="true" tagCode="SP101" name="SP-101 Bomba HP ON/OFF" />
+      <Elem readOnly="true" tagCode="SP102" name="SP-102 Bomba LP ON/OFF" />
+      <Elem readOnly="true" tagCode="ALRM1" name="ALRM-1 Conductividad Alta" />
+      <Elem readOnly="true" tagCode="ALRM2" name="ALRM-2 Presión Alta" />
+    </ElemGroup>
+  </ElemGroups>
+  <Cmds />
+</DeviceTemplate>
