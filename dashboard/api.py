@@ -102,6 +102,49 @@ def get_history():
     return history
 
 
+@app.get("/api/kpis")
+def get_kpis():
+    """Return computed KPIs from historical data."""
+    if not history:
+        return {"status": "no_data"}
+
+    count = len(history)
+    prod_h = history[-1].get("PROD-H", 0) if count > 0 else 0
+    prod_d = history[-1].get("PROD-D", 0) if count > 0 else 0
+    avg_recov = sum(h.get("RECOV", 0) for h in history) / count
+    avg_rejec = sum(h.get("REJEC", 0) for h in history) / count
+    avg_pres = sum(h.get("PT-101", 0) for h in history) / count
+    max_pres = max(h.get("PT-101", 0) for h in history)
+    min_pres = min(h.get("PT-101", 0) for h in history)
+    avg_ct201 = sum(h.get("CT-201", 0) for h in history) / count
+    max_ct201 = max(h.get("CT-201", 0) for h in history)
+    alarm_time_pct = sum(1 for h in history if h.get("CT-201", 0) > 400) / count * 100
+
+    return {
+        "count": count,
+        "duration_min": round(count * 1.0 / 60, 1),
+        "produccion_hora": round(prod_h, 1),
+        "produccion_dia": round(prod_d, 0),
+        "recuperacion_promedio": round(avg_recov, 1),
+        "rechazo_promedio": round(avg_rejec, 2),
+        "presion_promedio": round(avg_pres, 1),
+        "presion_max": round(max_pres, 1),
+        "presion_min": round(min_pres, 1),
+        "conductividad_perm_promedio": round(avg_ct201, 0),
+        "conductividad_perm_max": round(max_ct201, 0),
+        "tiempo_alarma_pct": round(alarm_time_pct, 1),
+    }
+
+
+@app.get("/api/trends")
+def get_trends(range_min: int = 5):
+    """Return history for the last N minutes."""
+    max_samples = range_min * 60
+    if max_samples >= len(history):
+        return history
+    return history[-max_samples:]
+
+
 @app.get("/")
 def index():
     return FileResponse("static/index.html")
