@@ -57,8 +57,8 @@ body {
 #toolbar h1 { font-size: 0.95rem; font-weight: 600; display: flex;
   align-items: center; gap: 8px; }
 #toolbar h1 .sub { font-weight: 400; color: var(--muted); font-size: 0.8rem; }
-#diagram-area { flex: 1; position: relative; overflow: hidden; }
-#diagram-svg { width: 100%; height: 100%; }
+#diagram-area { flex: 1; position: relative; overflow: auto; }
+#diagram-svg { width: 100%; min-height: 100%; }
 
 /* ── RIGHT SIDEBAR ── */
 #sidebar {
@@ -144,7 +144,7 @@ body {
 <!-- MAIN -->
 <div id="main">
   <div id="toolbar">
-    <h1 id="toolbar-title"><span id="diagram-icon" style="color:var(--accent)">◆</span> Arquitectura General <span class="sub" id="diagram-sub">Visión general del sistema</span></h1>
+    <h1 id="toolbar-title"><span id="diagram-icon" style="color:var(--accent)">◆</span> <span id="diagram-title-text">Arquitectura General</span> <span class="sub" id="diagram-sub">Visión general del sistema</span></h1>
   </div>
   <div id="diagram-area">
     <svg id="diagram-svg"></svg>
@@ -354,10 +354,14 @@ const NODE_DETAILS = {
 
 // ─── DRAWING ───
 const SVG = document.getElementById('diagram-svg');
-const W = () => document.getElementById('diagram-area').clientWidth;
-const H = () => document.getElementById('diagram-area').clientHeight;
+const W = () => Math.max(document.getElementById('diagram-area').clientWidth, 600);
+const H = () => Math.max(document.getElementById('diagram-area').clientHeight, 400);
 
-function clearSVG() { SVG.innerHTML = ''; }
+function clearSVG() { SVG.innerHTML = ''; SVG.removeAttribute('height'); }
+
+const SVG_FILL = '#111827';
+const SVG_TEXT = '#e2e8f0';
+const SVG_MUTED = '#64748b';
 
 function createNode(svg, x, y, w, h, label, sub, id, color, opts = {}) {
   const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -368,7 +372,7 @@ function createNode(svg, x, y, w, h, label, sub, id, color, opts = {}) {
   rect.setAttribute('x', x); rect.setAttribute('y', y);
   rect.setAttribute('width', w); rect.setAttribute('height', h);
   rect.setAttribute('rx', opts.rx || 8);
-  rect.setAttribute('fill', opts.fill || 'var(--panel)');
+  rect.setAttribute('fill', opts.fill || SVG_FILL);
   rect.setAttribute('stroke', color);
   rect.setAttribute('stroke-width', '1.5');
   rect.classList.add('node-rect');
@@ -376,7 +380,7 @@ function createNode(svg, x, y, w, h, label, sub, id, color, opts = {}) {
 
   if (opts.icon) {
     const ic = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    ic.setAttribute('x', x + w/2); ic.setAttribute('y', y + 24);
+    ic.setAttribute('x', x + w/2); ic.setAttribute('y', y + 14);
     ic.setAttribute('text-anchor', 'middle'); ic.setAttribute('fill', color);
     ic.setAttribute('font-size', opts.iconSize || '16');
     ic.textContent = opts.icon;
@@ -385,7 +389,7 @@ function createNode(svg, x, y, w, h, label, sub, id, color, opts = {}) {
 
   const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   lbl.setAttribute('x', x + w/2); lbl.setAttribute('y', y + h/2 + 4);
-  lbl.setAttribute('text-anchor', 'middle'); lbl.setAttribute('fill', 'var(--text)');
+  lbl.setAttribute('text-anchor', 'middle'); lbl.setAttribute('fill', SVG_TEXT);
   lbl.setAttribute('font-size', '12'); lbl.setAttribute('font-weight', '600');
   lbl.classList.add('node-label');
   lbl.textContent = label;
@@ -394,7 +398,7 @@ function createNode(svg, x, y, w, h, label, sub, id, color, opts = {}) {
   if (sub) {
     const s = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     s.setAttribute('x', x + w/2); s.setAttribute('y', y + h/2 + 20);
-    s.setAttribute('text-anchor', 'middle'); s.setAttribute('fill', 'var(--muted)');
+    s.setAttribute('text-anchor', 'middle'); s.setAttribute('fill', SVG_MUTED);
     s.setAttribute('font-size', '9');
     s.classList.add('node-label');
     s.textContent = sub;
@@ -489,11 +493,17 @@ function buildArquitectura() {
   // Title
   const title = document.createElementNS('http://www.w3.org/2000/svg','text');
   title.setAttribute('x', cx); title.setAttribute('y', 28);
-  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', 'var(--muted)');
+  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', SVG_MUTED);
   title.setAttribute('font-size', '11'); title.setAttribute('font-weight', '600');
   title.setAttribute('letter-spacing', '2');
   title.textContent = 'ARQUITECTURA DEL SISTEMA';
   SVG.appendChild(title);
+
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bg.setAttribute('x', '0'); bg.setAttribute('y', '0');
+  bg.setAttribute('width', '100%'); bg.setAttribute('height', ch);
+  bg.setAttribute('fill', SVG_FILL);
+  SVG.insertBefore(bg, SVG.firstChild);
 
   // Nodes
   const sim = createNode(SVG, cx - nw/2, 50, nw, nh, 'desaladora_sim.py', 'Puerto :502', 'sim', COLORS.cyan, {icon:'▶',iconSize:'12'});
@@ -528,7 +538,7 @@ function buildArquitectura() {
   const lbl = (x, y, text) => {
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('x', x); t.setAttribute('y', y);
-    t.setAttribute('text-anchor', 'middle'); t.setAttribute('fill', 'var(--muted)');
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('fill', SVG_MUTED);
     t.setAttribute('font-size', '9');
     t.textContent = text;
     SVG.appendChild(t);
@@ -543,7 +553,7 @@ function buildArquitectura() {
   const lg = document.createElementNS('http://www.w3.org/2000/svg','rect');
   lg.setAttribute('x', lgx); lg.setAttribute('y', lgy);
   lg.setAttribute('width', 140); lg.setAttribute('height', 70);
-  lg.setAttribute('fill', 'var(--panel)'); lg.setAttribute('stroke', 'var(--border)');
+  lg.setAttribute('fill', SVG_FILL); lg.setAttribute('stroke', COLORS.border);
   lg.setAttribute('rx', '6');
   SVG.appendChild(lg);
   const legendItems = [
@@ -559,7 +569,7 @@ function buildArquitectura() {
     SVG.appendChild(dot);
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('x', lgx + 26); t.setAttribute('y', lgy + 24 + i*14);
-    t.setAttribute('fill', 'var(--text)'); t.setAttribute('font-size', '10');
+    t.setAttribute('fill', SVG_TEXT); t.setAttribute('font-size', '10');
     t.textContent = l;
     SVG.appendChild(t);
   });
@@ -579,10 +589,16 @@ function buildFlujoDatos() {
 
   const title = document.createElementNS('http://www.w3.org/2000/svg','text');
   title.setAttribute('x', cw/2); title.setAttribute('y', 28);
-  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', 'var(--muted)');
+  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', SVG_MUTED);
   title.setAttribute('font-size', '11'); title.setAttribute('font-weight', '600');
   title.textContent = 'FLUJO DE DATOS — DEL SENSOR AL NAVEGADOR';
   SVG.appendChild(title);
+
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bg.setAttribute('x', '0'); bg.setAttribute('y', '0');
+  bg.setAttribute('width', '100%'); bg.setAttribute('height', ch);
+  bg.setAttribute('fill', SVG_FILL);
+  SVG.insertBefore(bg, SVG.firstChild);
 
   // Row 1: Source
   const sensor = createNode(SVG, cw/2 - nw/2, 50, nw, nh, 'Simulador Planta', '17 analog + 4 digital', 'sensor', COLORS.cyan, {icon:'◈',iconSize:'14'});
@@ -619,14 +635,14 @@ function buildFlujoDatos() {
   // Label for direct dash
   const dl = document.createElementNS('http://www.w3.org/2000/svg','text');
   dl.setAttribute('x', cw/2 + 10); dl.setAttribute('y', 380);
-  dl.setAttribute('fill', 'var(--muted)'); dl.setAttribute('font-size', '8');
+  dl.setAttribute('fill', SVG_MUTED); dl.setAttribute('font-size', '8');
   dl.textContent = 'Lectura directa Modbus (FastAPI)';
   SVG.appendChild(dl);
 
   // Subtitle
   const st = document.createElementNS('http://www.w3.org/2000/svg','text');
   st.setAttribute('x', 20); st.setAttribute('y', ch-20);
-  st.setAttribute('fill', 'var(--muted)'); st.setAttribute('font-size', '9');
+  st.setAttribute('fill', SVG_MUTED); st.setAttribute('font-size', '9');
   st.textContent = '▲ Flechas animadas = flujo continuo de datos (polling 1s)';
   SVG.appendChild(st);
 
@@ -642,10 +658,16 @@ function buildModbus() {
 
   const title = document.createElementNS('http://www.w3.org/2000/svg','text');
   title.setAttribute('x', cx); title.setAttribute('y', 28);
-  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', 'var(--muted)');
+  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', SVG_MUTED);
   title.setAttribute('font-size', '11'); title.setAttribute('font-weight', '600');
   title.textContent = 'MAPA DE COMUNICACIÓN MODBUS';
   SVG.appendChild(title);
+
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bg.setAttribute('x', '0'); bg.setAttribute('y', '0');
+  bg.setAttribute('width', '100%'); bg.setAttribute('height', '920');
+  bg.setAttribute('fill', SVG_FILL);
+  SVG.insertBefore(bg, SVG.firstChild);
 
   // Simulador
   const sim = createNode(SVG, cx - nw/2, 50, nw, nh, 'Simulador Modbus', 'Servidor TCP :502', 'sim', COLORS.cyan, {icon:'◈',iconSize:'14'});
@@ -678,13 +700,13 @@ function buildModbus() {
   const tblBg = document.createElementNS('http://www.w3.org/2000/svg','rect');
   tblBg.setAttribute('x', 40); tblBg.setAttribute('y', tblY);
   tblBg.setAttribute('width', cw - 80); tblBg.setAttribute('height', ch - tblY - 30);
-  tblBg.setAttribute('fill', 'var(--panel)'); tblBg.setAttribute('rx', '8');
-  tblBg.setAttribute('stroke', 'var(--border)');
+  tblBg.setAttribute('fill', SVG_FILL); tblBg.setAttribute('rx', '8');
+  tblBg.setAttribute('stroke', COLORS.border);
   SVG.appendChild(tblBg);
 
   const tblTitle = document.createElementNS('http://www.w3.org/2000/svg','text');
   tblTitle.setAttribute('x', 60); tblTitle.setAttribute('y', tblY + 22);
-  tblTitle.setAttribute('fill', 'var(--muted)'); tblTitle.setAttribute('font-size', '10');
+  tblTitle.setAttribute('fill', SVG_MUTED); tblTitle.setAttribute('font-size', '10');
   tblTitle.setAttribute('font-weight', '600');
   tblTitle.textContent = 'TABLA DE REGISTROS (Holding Registers — Float32 Big-endian)';
   SVG.appendChild(tblTitle);
@@ -695,43 +717,36 @@ function buildModbus() {
   cols.forEach((c, i) => {
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('x', colX[i]); t.setAttribute('y', tblY + 42);
-    t.setAttribute('fill', 'var(--muted)'); t.setAttribute('font-size', '9');
+    t.setAttribute('fill', SVG_MUTED); t.setAttribute('font-size', '9');
     t.textContent = c;
     SVG.appendChild(t);
   });
 
   const tblData = [
-    ['HR 1-2', 'FT101', 'Caudal Alimentación', '80-120', 'm³/h', COLORS.accent],
-    ['HR 3-4', 'FT201', 'Caudal Permeado', '40-60', 'm³/h', COLORS.green],
-    ['HR 5-6', 'FT301', 'Caudal Concentrado', '30-50', 'm³/h', COLORS.red],
-    ['HR 7-8', 'PT101', 'Presión Alta HP', '55-65', 'bar', COLORS.orange],
-    ['HR 9-10', 'PT102', 'Presión Baja LP', '2-4', 'bar', COLORS.accent],
-    ['HR 11-12', 'PT201', 'Presión Permeado', '0.5-1.5', 'bar', COLORS.cyan],
-    ['HR 13-14', 'CT101', 'Conductividad Alim.', '45000-55000', 'µS/cm', COLORS.accent],
-    ['HR 15-16', 'CT201', 'Conductividad Perm.', '100-300', 'µS/cm', COLORS.green],
-    ['HR 17-18', 'TT101', 'Temperatura', '18-25', '°C', COLORS.cyan],
-    ['HR 19-20', 'AT101', 'pH Alimentación', '6.8-7.2', 'pH', COLORS.purple],
-    ['HR 21-22', 'AT201', 'pH Permeado', '6.5-7.0', 'pH', COLORS.cyan],
-    ['HR 23-24', 'KW101', 'Potencia Bomba HP', '45-55', 'kW', COLORS.orange],
-    ['HR 25-26', 'VL101', 'Apertura Válvula', '0-100', '%', COLORS.purple],
-    ['HR 27-28', 'RECOV', 'Tasa Recuperación', '40-55', '%', COLORS.green],
-    ['HR 29-30', 'REJEC', 'Tasa Rechazo Sal', '98-99.9', '%', COLORS.accent],
-    ['HR 31-32', 'PRODH', 'Producción Hora', 'acum.', 'm³', COLORS.cyan],
-    ['HR 33-34', 'PRODD', 'Producción Día', 'acum.', 'm³', COLORS.cyan],
+    ['HR 1-2', 'FT101', 'Caudal Alimentación', '80-120', 'm³/h'],
+    ['HR 3-4', 'FT201', 'Caudal Permeado', '40-60', 'm³/h'],
+    ['HR 5-6', 'FT301', 'Caudal Concentrado', '30-50', 'm³/h'],
+    ['HR 7-8', 'PT101', 'Presión Alta HP', '55-65', 'bar'],
+    ['HR 9-10', 'PT102', 'Presión Baja LP', '2-4', 'bar'],
+    ['HR 11-12', 'PT201', 'Presión Permeado', '0.5-1.5', 'bar'],
+    ['HR 13-14', 'CT101', 'Conductividad Alim.', '45000-55000', 'µS/cm'],
+    ['HR 15-16', 'CT201', 'Conductividad Perm.', '100-300', 'µS/cm'],
+    ['HR 17-18', 'TT101', 'Temperatura', '18-25', '°C'],
+    ['HR 19-20', 'AT101', 'pH Alimentación', '6.8-7.2', 'pH'],
+    ['HR 21-22', 'AT201', 'pH Permeado', '6.5-7.0', 'pH'],
+    ['HR 23-24', 'KW101', 'Potencia Bomba HP', '45-55', 'kW'],
+    ['HR 25-26', 'VL101', 'Apertura Válvula', '0-100', '%'],
+    ['HR 27-28', 'RECOV', 'Tasa Recuperación', '40-55', '%'],
+    ['HR 29-30', 'REJEC', 'Tasa Rechazo Sal', '98-99.9', '%'],
+    ['HR 31-32', 'PRODH', 'Producción Hora', 'acum.', 'm³'],
+    ['HR 33-34', 'PRODD', 'Producción Día', 'acum.', 'm³'],
   ];
   tblData.forEach((r, i) => {
     const y = tblY + 64 + i * 22;
-    if (i % 2 === 0) {
-      const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
-      bg.setAttribute('x', 40); bg.setAttribute('y', y - 10);
-      bg.setAttribute('width', cw - 80); bg.setAttribute('height', 22);
-      bg.setAttribute('fill', 'rgba(255,255,255,0.02)');
-      SVG.appendChild(bg);
-    }
     r.slice(0, 5).forEach((v, j) => {
       const t = document.createElementNS('http://www.w3.org/2000/svg','text');
       t.setAttribute('x', colX[j]); t.setAttribute('y', y + 2);
-      t.setAttribute('fill', j === 1 ? r[5] : 'var(--text)');
+      t.setAttribute('fill', j === 1 ? COLORS.accent : SVG_TEXT);
       t.setAttribute('font-size', '9');
       t.setAttribute('font-weight', j <= 1 ? '600' : '400');
       t.textContent = v;
@@ -739,6 +754,7 @@ function buildModbus() {
     });
   });
 
+  SVG.setAttribute('height', '920');
   selectNode('mb_hr');
 }
 
@@ -746,10 +762,16 @@ function buildRO() {
   const cw = W(), ch = H();
   const title = document.createElementNS('http://www.w3.org/2000/svg','text');
   title.setAttribute('x', cw/2); title.setAttribute('y', 28);
-  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', 'var(--muted)');
+  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', SVG_MUTED);
   title.setAttribute('font-size', '11'); title.setAttribute('font-weight', '600');
   title.textContent = 'PROCESO DE OSMOSIS INVERSA (RO)';
   SVG.appendChild(title);
+
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bg.setAttribute('x', '0'); bg.setAttribute('y', '0');
+  bg.setAttribute('width', '100%'); bg.setAttribute('height', ch);
+  bg.setAttribute('fill', SVG_FILL);
+  SVG.insertBefore(bg, SVG.firstChild);
 
   // Layout: horizontal flow
   const y0 = 60, y1 = 140, y2 = 220, y3 = 300, y4 = 400;
@@ -804,7 +826,7 @@ function buildRO() {
   const lbl = (x, y, text, color) => {
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('x', x); t.setAttribute('y', y);
-    t.setAttribute('text-anchor', 'middle'); t.setAttribute('fill', color||'var(--muted)');
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('fill', color||SVG_MUTED);
     t.setAttribute('font-size', '9');
     t.textContent = text;
     SVG.appendChild(t);
@@ -818,7 +840,7 @@ function buildRO() {
 
   const st = document.createElementNS('http://www.w3.org/2000/svg','text');
   st.setAttribute('x', 20); st.setAttribute('y', ch-20);
-  st.setAttribute('fill', 'var(--muted)'); st.setAttribute('font-size', '9');
+  st.setAttribute('fill', SVG_MUTED); st.setAttribute('font-size', '9');
   st.textContent = '▲ Las alarmas se activan cuando CT-201 > 400 µS/cm (ALRM-1) o PT-101 > 62 bar (ALRM-2)';
   SVG.appendChild(st);
 
@@ -829,10 +851,16 @@ function buildServices() {
   const cw = W(), ch = H();
   const title = document.createElementNS('http://www.w3.org/2000/svg','text');
   title.setAttribute('x', cw/2); title.setAttribute('y', 28);
-  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', 'var(--muted)');
+  title.setAttribute('text-anchor', 'middle'); title.setAttribute('fill', SVG_MUTED);
   title.setAttribute('font-size', '11'); title.setAttribute('font-weight', '600');
   title.textContent = 'INFRAESTRUCTURA DE SERVICIOS';
   SVG.appendChild(title);
+
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bg.setAttribute('x', '0'); bg.setAttribute('y', '0');
+  bg.setAttribute('width', '100%'); bg.setAttribute('height', ch);
+  bg.setAttribute('fill', SVG_FILL);
+  SVG.insertBefore(bg, SVG.firstChild);
 
   createArrowhead(SVG, 'sa', COLORS.accent);
   createArrowhead(SVG, 'sg', COLORS.green);
@@ -860,10 +888,6 @@ function buildServices() {
   });
 
   // Dependencies
-  // server ← comm (dependency)
-  al(svc_sim => {
-    // These are done below with the al function
-  });
 
   const al = (x1,y1,x2,y2,c,aid,anim,dashed) => {
     const l = document.createElementNS('http://www.w3.org/2000/svg','line');
@@ -907,7 +931,7 @@ function buildServices() {
   const lg = document.createElementNS('http://www.w3.org/2000/svg','rect');
   lg.setAttribute('x', lgx); lg.setAttribute('y', lgy);
   lg.setAttribute('width', 200); lg.setAttribute('height', 60);
-  lg.setAttribute('fill', 'var(--panel)'); lg.setAttribute('stroke', 'var(--border)');
+  lg.setAttribute('fill', SVG_FILL); lg.setAttribute('stroke', COLORS.border);
   lg.setAttribute('rx', '6');
   SVG.appendChild(lg);
   const li1 = document.createElementNS('http://www.w3.org/2000/svg','line');
@@ -919,7 +943,7 @@ function buildServices() {
   SVG.appendChild(li1);
   const t1 = document.createElementNS('http://www.w3.org/2000/svg','text');
   t1.setAttribute('x', lgx+55); t1.setAttribute('y', lgy+26);
-  t1.setAttribute('fill', 'var(--text)'); t1.setAttribute('font-size', '10');
+  t1.setAttribute('fill', SVG_TEXT); t1.setAttribute('font-size', '10');
   t1.textContent = 'Dependencia (A necesita B)';
   SVG.appendChild(t1);
 
@@ -933,7 +957,7 @@ function buildServices() {
   SVG.appendChild(li2);
   const t2 = document.createElementNS('http://www.w3.org/2000/svg','text');
   t2.setAttribute('x', lgx+55); t2.setAttribute('y', lgy+50);
-  t2.setAttribute('fill', 'var(--text)'); t2.setAttribute('font-size', '10');
+  t2.setAttribute('fill', SVG_TEXT); t2.setAttribute('font-size', '10');
   t2.textContent = 'Flujo de datos (polling 1s)';
   SVG.appendChild(t2);
 
@@ -948,8 +972,8 @@ function switchDiagram(id) {
 
   const meta = DIAGRAM_META[id];
   document.getElementById('diagram-icon').textContent = meta.icon;
-  document.getElementById('toolbar-title').innerHTML =
-    `${meta.icon} ${meta.title} <span class="sub">${meta.sub}</span>`;
+  document.getElementById('diagram-title-text').textContent = meta.title;
+  document.getElementById('diagram-sub').textContent = meta.sub;
 
   // Clear sidebar
   document.getElementById('side-type').textContent = 'NODO';
