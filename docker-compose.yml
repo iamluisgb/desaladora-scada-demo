@@ -1,0 +1,65 @@
+services:
+
+  simulator:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.simulator
+    ports:
+      - "502:502"
+    restart: unless-stopped
+
+  scada-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.scada
+    command: server
+    volumes:
+      - scada-archive:/opt/scada/Archive
+      - scada-basedat:/opt/scada/BaseDAT
+    restart: unless-stopped
+
+  scada-comm:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.scada
+    command: comm
+    depends_on:
+      scada-server:
+        condition: service_started
+      simulator:
+        condition: service_started
+    volumes:
+      - ./docker/config/ScadaCommConfig.xml:/opt/scada/ScadaCommWkr/ScadaCommConfig.xml
+      - ./docker/config/ScadaCommConfig.xml:/opt/scada/ScadaCommApp/Config/ScadaCommConfig.xml
+    restart: unless-stopped
+
+  scada-web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.scada
+    command: web
+    ports:
+      - "5000:5000"
+    depends_on:
+      scada-server:
+        condition: service_started
+    volumes:
+      - ./docker/config/ScadaWebConfig.xml:/opt/scada/ScadaWeb/Config/ScadaWebConfig.xml
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dashboard
+    ports:
+      - "8000:8000"
+    environment:
+      - MODBUS_HOST=simulator
+    depends_on:
+      simulator:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  scada-archive:
+  scada-basedat:

@@ -3,6 +3,9 @@
 # Rapid SCADA compiled databases
 **/BaseDAT/*.dat
 
+# Docker build artifacts
+docker/scada-bin/
+
 # Runtime archives (generated data)
 **/Archive/Min/
 **/Archive/Hour/

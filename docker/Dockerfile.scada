@@ -1,0 +1,14 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /opt/scada
+
+COPY scada-bin/ /opt/scada/
+COPY scada/ /opt/scada/
+
+COPY docker/scada-entrypoint.sh /usr/local/bin/scada-entrypoint.sh
+RUN chmod +x /usr/local/bin/scada-entrypoint.sh && \
+    mkdir -p /opt/scada/ScadaServerWkr /opt/scada/ScadaCommWkr /opt/scada/ScadaWeb/log /opt/scada/ScadaWeb/storage /opt/scada/ScadaWeb/temp /opt/scada/Archive && \
+    chmod -R 777 /opt/scada/ScadaServerWkr /opt/scada/ScadaCommWkr /opt/scada/ScadaWeb/log /opt/scada/ScadaWeb/storage /opt/scada/ScadaWeb/temp /opt/scada/Archive
+
+EXPOSE 10000 5000
+
+ENTRYPOINT ["scada-entrypoint.sh"]

@@ -4,6 +4,7 @@ API REST para exponer datos de la planta desaladora.
 Lee los registros Modbus del simulador y los devuelve como JSON.
 """
 
+import os
 import struct
 import time
 from fastapi import FastAPI
@@ -15,8 +16,8 @@ from pymodbus.client import ModbusTcpClient
 app = FastAPI(title="Desaladora RO - API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-MODBUS_HOST = "localhost"
-MODBUS_PORT = 502
+MODBUS_HOST = os.getenv("MODBUS_HOST", "localhost")
+MODBUS_PORT = int(os.getenv("MODBUS_PORT", "502"))
 
 TAG_DEFS = [
     ("FT-101", "Caudal Alimentación",    "m³/h",  1),

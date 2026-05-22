@@ -1,6 +1,17 @@
 # Backlog — Demo Desaladora Rapid SCADA
 
-## Estado general: DEMO LISTA PARA CLIENTES ✓
+## Estado general: FASE 7 — Mejoras de alto impacto 🚀
+
+---
+
+## Pendiente
+
+### Fase 7 — Mejoras de alto impacto
+- [ ] **Docker Compose** — Contenerizar todo el stack (sim, server, comm, web, dash)
+- [ ] **Modbus writes** — Encender/apagar bombas, ajustar válvula desde dashboard HTML + API PUT
+- [ ] **API de históricos** — Leer archivos Rapid SCADA (Min/Hour) desde FastAPI para producción diaria/semanal
+- [ ] **Dashboard responsive** — Vista adaptada a tablet con gauges y P&ID reordenados
+- [ ] **Simular fallo de membrana** — Botón que degrada CT-201 progresivamente hasta disparar ALRM-1
 
 ---
 
