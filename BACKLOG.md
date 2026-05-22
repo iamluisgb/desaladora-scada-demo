@@ -7,11 +7,11 @@
 ## Pendiente
 
 ### Fase 7 — Mejoras de alto impacto
-- [ ] **Docker Compose** — Contenerizar todo el stack (sim, server, comm, web, dash)
-- [ ] **Modbus writes** — Encender/apagar bombas, ajustar válvula desde dashboard HTML + API PUT
-- [ ] **API de históricos** — Leer archivos Rapid SCADA (Min/Hour) desde FastAPI para producción diaria/semanal
-- [ ] **Dashboard responsive** — Vista adaptada a tablet con gauges y P&ID reordenados
-- [ ] **Simular fallo de membrana** — Botón que degrada CT-201 progresivamente hasta disparar ALRM-1
+- [x] **Docker Compose** — Contenerizar todo el stack (sim, server, comm, web, dash)
+- [x] **Modbus writes** — Encender/apagar bombas, ajustar válvula desde dashboard HTML + API PUT
+- [x] **API de históricos** — Endpoints /api/kpis y /api/trends desde datos en vivo
+- [x] **Dashboard responsive** — Vista adaptada a tablet/mobile con 3 breakpoints
+- [x] **Simular fallo de membrana** — Botón que fuerza CT-201 a 500 µS/cm durante 10s
 
 ---
 
@@ -64,4 +64,9 @@
 | 2026-05-22 | Demo lista para clientes: 4 vistas configuradas, datos en tiempo real, alarmas funcionales, históricos operativos |
 | 2026-05-22 | Script de demo creado: DEMO_SCRIPT.md con guion completo de 15-20 min para clientes |
 | 2026-05-22 | Bug fix: Formatos de canales corregidos de hexadecimal (X8/X2) a decimal (N0/N1/N2), cnl.dat regenerado |
-| 2026-05-22 | Dashboard visual creado: API FastAPI en :8080, P&ID animado, gauges, gráficos de tendencia, panel de variables |
+| 2026-05-22 | Dashboard visual creado: API FastAPI en :8000, P&ID animado, gauges, gráficos de tendencia, panel de variables |
+| 2026-05-22 | Docker Compose: 5 servicios (sim, server, comm, web, dash) con Dockerfiles y build script |
+| 2026-05-22 | Modbus writes: dashboard con botones toggle para bombas + slider válvula + Simular fallo. API POST /api/write con override file IPC |
+| 2026-05-22 | API KPIs: /api/kpis (producción, recuperación, presiones, alarmas) y /api/trends con ventana configurable |
+| 2026-05-22 | Dashboard responsive: 3 breakpoints (1024/768/480px) para tablet y mobile |
+| 2026-05-22 | Fase 7 completa: Docker, writes, KPIs, responsive, fallo simulado ✓ |
